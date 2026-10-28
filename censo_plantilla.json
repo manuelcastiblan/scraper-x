@@ -1,0 +1,26 @@
+{
+  "scope": {
+    "name": "Nombre del conjunto (p. ej. Bancada X, periodo 2022-2026)",
+    "scrape_start_local": "2022-07-20T00:00:00-05:00",
+    "scrape_end_local_exclusive": "2026-07-20T00:00:00-05:00",
+    "query_timezone": "UTC",
+    "selection_rule": "Explica a quién se incluye y por qué: titulares, reemplazos, fechas de corte.",
+    "official_chamber_directory": "URL del directorio oficial que respalda la lista",
+    "official_senate_source": "Otra fuente oficial, si aplica"
+  },
+  "accounts": [
+    {
+      "id": "camara-nombre-apellido",
+      "corporation": "Cámara de Representantes",
+      "name": "Nombre completo como aparece en la fuente oficial",
+      "district": "Circunscripción o departamento",
+      "x_handle": "usuarioDeX",
+      "account_url": "https://x.com/usuarioDeX",
+      "official_source_url": "URL de la ficha oficial de esa persona",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular o reemplazo; de dónde se verificó la cuenta de X."
+    }
+  ]
+}

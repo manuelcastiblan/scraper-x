@@ -1,0 +1,16 @@
+# Entornos y cachés
+.venv/
+__pycache__/
+*.pyc
+
+# Resultados de descarga: no se versionan (pesan cientos de MB y contienen datos personales)
+*_partes/
+*.log
+*_progreso.json
+reparacion_textos_estado.json
+mi_corpus*.csv
+cuentas_pacto_historico_2022_2026*.csv
+prioridad_nacional*.csv
+
+# geckodriver: cada quien usa el de su sistema
+geckodriver

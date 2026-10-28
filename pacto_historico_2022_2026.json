@@ -1,0 +1,716 @@
+{
+  "scope": {
+    "name": "Congresistas del Pacto Histórico, período constitucional 2022-2026",
+    "scrape_start_local": "2022-07-20T00:00:00-05:00",
+    "scrape_end_local_exclusive": "2026-07-20T00:00:00-05:00",
+    "query_timezone": "UTC",
+    "selection_rule": "Titulares y reemplazos que ejercieron una curul de la Coalición Pacto Histórico durante el período. La descarga cubre la cuenta completa durante el cuatrienio; los intervalos de servicio quedan como metadato auditable.",
+    "official_chamber_directory": "https://www.camara.gov.co/representantes/",
+    "official_senate_source": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado"
+  },
+  "accounts": [
+    {
+      "id": "camara-agmeth-escaf",
+      "corporation": "Cámara de Representantes",
+      "name": "Agmeth José Escaf Tijerino",
+      "district": "Atlántico",
+      "x_handle": "agmethescaf",
+      "account_url": "https://x.com/agmethescaf",
+      "official_source_url": "https://www.camara.gov.co/representantes/agmeth-jose-escaf-tijerino",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Intervalos con final exclusivo."
+    },
+    {
+      "id": "camara-alfredo-mondragon",
+      "corporation": "Cámara de Representantes",
+      "name": "Alfredo Mondragón Garzón",
+      "district": "Valle del Cauca",
+      "x_handle": "AlfreMondragon",
+      "account_url": "https://x.com/AlfreMondragon",
+      "official_source_url": "https://www.camara.gov.co/representantes/alfredo-mondragon-garzon",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Intervalos con final exclusivo."
+    },
+    {
+      "id": "camara-alirio-uribe",
+      "corporation": "Cámara de Representantes",
+      "name": "Alirio Uribe Muñoz",
+      "district": "Bogotá D.C.",
+      "x_handle": "AlirioUribeMuoz",
+      "account_url": "https://x.com/AlirioUribeMuoz",
+      "official_source_url": "https://www.camara.gov.co/representantes/alirio-uribe-munoz",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. El identificador de X omite la ñ."
+    },
+    {
+      "id": "camara-carmen-ramirez",
+      "corporation": "Cámara de Representantes",
+      "name": "Carmen Felisa Ramírez Boscán",
+      "district": "Colombianos en el exterior",
+      "x_handle": "Wayunkerra",
+      "account_url": "https://x.com/Wayunkerra",
+      "official_source_url": "https://www.camara.gov.co/representantes/carmen-felisa-ramirez-boscan",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-cristobal-caicedo",
+      "corporation": "Cámara de Representantes",
+      "name": "Cristóbal Caicedo Angulo",
+      "district": "Valle del Cauca",
+      "x_handle": "CRISTOBALCAIC10",
+      "account_url": "https://x.com/CRISTOBALCAIC10",
+      "official_source_url": "https://www.camara.gov.co/representantes/cristobal-caicedo-angulo",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-david-toro",
+      "corporation": "Cámara de Representantes",
+      "name": "David Alejandro Toro Ramírez",
+      "district": "Antioquia",
+      "x_handle": "AlejoToroAnt",
+      "account_url": "https://x.com/AlejoToroAnt",
+      "official_source_url": "https://www.camara.gov.co/representantes/david-alejandro-toro-ramirez",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-david-racero",
+      "corporation": "Cámara de Representantes",
+      "name": "David Ricardo Racero Mayorca",
+      "district": "Bogotá D.C.",
+      "x_handle": "DavidRacero",
+      "account_url": "https://x.com/DavidRacero",
+      "official_source_url": "https://www.camara.gov.co/representantes/david-ricardo-racero-mayorca",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-dorina-hernandez",
+      "corporation": "Cámara de Representantes",
+      "name": "Dorina Hernández Palomino",
+      "district": "Bolívar",
+      "x_handle": "chadorinah",
+      "account_url": "https://x.com/chadorinah",
+      "official_source_url": "https://www.camara.gov.co/representantes/dorina-hernandez-palomino",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-eduard-sarmiento",
+      "corporation": "Cámara de Representantes",
+      "name": "Eduard Giovanny Sarmiento Hidalgo",
+      "district": "Cundinamarca",
+      "x_handle": "eduardsarmiento",
+      "account_url": "https://x.com/eduardsarmiento",
+      "official_source_url": "https://www.camara.gov.co/representantes/eduard-giovanny-sarmiento-hidalgo",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en informe de gestión oficial 2024-2025."
+    },
+    {
+      "id": "camara-erick-velasco",
+      "corporation": "Cámara de Representantes",
+      "name": "Erick Adrián Velasco Burbano",
+      "district": "Nariño",
+      "x_handle": "eravelasco",
+      "account_url": "https://x.com/eravelasco",
+      "official_source_url": "https://www.camara.gov.co/representantes/erick-adrian-velasco-burbano",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-ermes-pete",
+      "corporation": "Cámara de Representantes",
+      "name": "Ermes Evelio Pete Vivas",
+      "district": "Cauca",
+      "x_handle": "PeteErmes",
+      "account_url": "https://x.com/PeteErmes",
+      "official_source_url": "https://www.camara.gov.co/representantes/ermes-evelio-pete-vivas",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-etna-argote",
+      "corporation": "Cámara de Representantes",
+      "name": "Etna Tamara Argote Calderón",
+      "district": "Bogotá D.C.",
+      "x_handle": "tamaraargote",
+      "account_url": "https://x.com/tamaraargote",
+      "official_source_url": "https://www.camara.gov.co/representantes/etna-tamara-argote-calderon",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-gabriel-becerra",
+      "corporation": "Cámara de Representantes",
+      "name": "Gabriel Becerra Yáñez",
+      "district": "Bogotá D.C.",
+      "x_handle": "BecerraGabo",
+      "account_url": "https://x.com/BecerraGabo",
+      "official_source_url": "https://www.camara.gov.co/representantes/gabriel-becerra-yanez",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en informe de gestión oficial 2024-2025."
+    },
+    {
+      "id": "camara-gabriel-parrado",
+      "corporation": "Cámara de Representantes",
+      "name": "Gabriel Ernesto Parrado Durán",
+      "district": "Meta",
+      "x_handle": "GabrielParradoD",
+      "account_url": "https://x.com/GabrielParradoD",
+      "official_source_url": "https://www.camara.gov.co/representantes/gabriel-ernesto-parrado-duran",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-gildardo-silva",
+      "corporation": "Cámara de Representantes",
+      "name": "Gildardo Silva Molina",
+      "district": "Valle del Cauca",
+      "x_handle": "gildardosilvaph",
+      "account_url": "https://x.com/gildardosilvaph",
+      "official_source_url": "https://www.camara.gov.co/representantes/gildardo-silva-molina",
+      "service_intervals": [
+        "2024-03-19/2026-07-20"
+      ],
+      "notes": "Reemplazó a José Alberto Tejada Echeverry."
+    },
+    {
+      "id": "camara-gloria-arizabaleta",
+      "corporation": "Cámara de Representantes",
+      "name": "Gloria Elena Arizabaleta Corral",
+      "district": "Valle del Cauca",
+      "x_handle": "GloArizabaleta",
+      "account_url": "https://x.com/GloArizabaleta",
+      "official_source_url": "https://www.camara.gov.co/representantes/gloria-elena-arizabaleta-corral",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-heraclito-landinez",
+      "corporation": "Cámara de Representantes",
+      "name": "Heráclito Landínez Suárez",
+      "district": "Bogotá D.C.",
+      "x_handle": "HERACLITOL",
+      "account_url": "https://x.com/HERACLITOL",
+      "official_source_url": "https://www.camara.gov.co/representantes/heraclito-landinez-suarez",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en informe de gestión oficial 2024-2025."
+    },
+    {
+      "id": "camara-jorge-ocampo",
+      "corporation": "Cámara de Representantes",
+      "name": "Jorge Alejandro Ocampo Giraldo",
+      "district": "Valle del Cauca",
+      "x_handle": "alejoocampog",
+      "account_url": "https://x.com/alejoocampog",
+      "official_source_url": "https://www.camara.gov.co/representantes/jorge-alejandro-ocampo-giraldo",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-andres-cancimance",
+      "corporation": "Cámara de Representantes",
+      "name": "Jorge Andrés Cancimance López",
+      "district": "Putumayo",
+      "x_handle": "CancimanceL",
+      "account_url": "https://x.com/CancimanceL",
+      "official_source_url": "https://www.camara.gov.co/representantes/jorge-andres-cancimance-lopez",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada por Prensa Cámara."
+    },
+    {
+      "id": "camara-jorge-bastidas",
+      "corporation": "Cámara de Representantes",
+      "name": "Jorge Hernán Bastidas Rosero",
+      "district": "Cauca",
+      "x_handle": "Jorge_BastidasR",
+      "account_url": "https://x.com/Jorge_BastidasR",
+      "official_source_url": "https://www.camara.gov.co/representantes/jorge-hernan-bastidas-rosero",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-jose-tejada",
+      "corporation": "Cámara de Representantes",
+      "name": "José Alberto Tejada Echeverry",
+      "district": "Valle del Cauca",
+      "x_handle": "joaltejada",
+      "account_url": "https://x.com/joaltejada",
+      "official_source_url": "https://www.camara.gov.co/representantes/jose-alberto-tejada-echeverry",
+      "service_intervals": [
+        "2022-07-20/2024-02-29"
+      ],
+      "notes": "Titular; falleció el 28 de febrero de 2024."
+    },
+    {
+      "id": "camara-leider-vasquez",
+      "corporation": "Cámara de Representantes",
+      "name": "Leider Alexandra Vásquez Ochoa",
+      "district": "Cundinamarca",
+      "x_handle": "alexandravasoch",
+      "account_url": "https://x.com/alexandravasoch",
+      "official_source_url": "https://www.camara.gov.co/representantes/leider-alexandra-vasquez-ochoa",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en informe de gestión oficial 2024-2025."
+    },
+    {
+      "id": "camara-leyla-rincon",
+      "corporation": "Cámara de Representantes",
+      "name": "Leyla Marleny Rincón Trujillo",
+      "district": "Huila",
+      "x_handle": "LeylaProfe",
+      "account_url": "https://x.com/LeylaProfe",
+      "official_source_url": "https://www.camara.gov.co/representantes/leyla-marleny-rincon-trujillo",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en informe de gestión oficial 2024-2025."
+    },
+    {
+      "id": "camara-luz-munera",
+      "corporation": "Cámara de Representantes",
+      "name": "Luz María Múnera Medina",
+      "district": "Antioquia",
+      "x_handle": "luzmamunera",
+      "account_url": "https://x.com/luzmamunera",
+      "official_source_url": "https://www.camara.gov.co/representantes/luz-maria-munera-medina",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-mary-perdomo",
+      "corporation": "Cámara de Representantes",
+      "name": "Mary Anne Andrea Perdomo Gutiérrez",
+      "district": "Santander",
+      "x_handle": "MaryannePHC",
+      "account_url": "https://x.com/MaryannePHC",
+      "official_source_url": "https://www.camara.gov.co/representantes/mary-anne-andrea-perdomo",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Documentos anteriores también imprimen @maryannePH."
+    },
+    {
+      "id": "camara-mafe-carrascal",
+      "corporation": "Cámara de Representantes",
+      "name": "María Fernanda Carrascal Rojas",
+      "district": "Bogotá D.C.",
+      "x_handle": "MafeCarrascal",
+      "account_url": "https://x.com/MafeCarrascal",
+      "official_source_url": "https://www.camara.gov.co/representantes/maria-fernanda-carrascal-rojas",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-mar-pizarro",
+      "corporation": "Cámara de Representantes",
+      "name": "María del Mar Pizarro García",
+      "district": "Bogotá D.C.",
+      "x_handle": "delmarpizarro",
+      "account_url": "https://x.com/delmarpizarro",
+      "official_source_url": "https://www.camara.gov.co/representantes/maria-del-mar-pizarro-garcia",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-pedro-suarez",
+      "corporation": "Cámara de Representantes",
+      "name": "Pedro José Suárez Vacca",
+      "district": "Boyacá",
+      "x_handle": "suarezvacca",
+      "account_url": "https://x.com/suarezvacca",
+      "official_source_url": "https://www.camara.gov.co/representantes/pedro-jose-suarez-vacca",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "camara-susana-boreal",
+      "corporation": "Cámara de Representantes",
+      "name": "Susana Gómez Castaño",
+      "district": "Antioquia",
+      "x_handle": "SusanaBoreal",
+      "account_url": "https://x.com/SusanaBoreal",
+      "official_source_url": "https://www.camara.gov.co/representantes/susana-gomez-castano",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-gustavo-bolivar",
+      "corporation": "Senado de la República",
+      "name": "Gustavo Bolívar Moreno",
+      "district": "Nacional",
+      "x_handle": "GustavoBolivar",
+      "account_url": "https://x.com/GustavoBolivar",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2023-01-01"
+      ],
+      "notes": "Titular; renuncia aceptada el 31 de diciembre de 2022."
+    },
+    {
+      "id": "senado-maria-jose-pizarro",
+      "corporation": "Senado de la República",
+      "name": "María José Pizarro Rodríguez",
+      "district": "Nacional",
+      "x_handle": "PizarroMariaJo",
+      "account_url": "https://x.com/PizarroMariaJo",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-alexander-lopez",
+      "corporation": "Senado de la República",
+      "name": "Alexander López Maya",
+      "district": "Nacional",
+      "x_handle": "AlexLopezMaya",
+      "account_url": "https://x.com/AlexLopezMaya",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/7155-alexander-lopez-retoma-su-curul-en-el-senado-tras-fallo-de-la-corte-constitucional-que-protege-sus-derechos-politicos",
+      "service_intervals": [
+        "2022-07-20/2024-03-05",
+        "2026-02-12/2026-07-20"
+      ],
+      "notes": "Titular; salió para asumir la dirección del DNP y retomó la curul el 12 de febrero de 2026."
+    },
+    {
+      "id": "senado-aida-avella",
+      "corporation": "Senado de la República",
+      "name": "Aída Yolanda Avella Esquivel",
+      "district": "Nacional",
+      "x_handle": "AidaAvellaE",
+      "account_url": "https://x.com/AidaAvellaE",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-roy-barreras",
+      "corporation": "Senado de la República",
+      "name": "Roy Leonardo Barreras Montealegre",
+      "district": "Nacional",
+      "x_handle": "RoyBarreras",
+      "account_url": "https://x.com/RoyBarreras",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/4573-senado-fija-fecha-para-elegir-presidente-de-la-corporacion",
+      "service_intervals": [
+        "2022-07-20/2023-05-27"
+      ],
+      "notes": "Titular; la nulidad de su elección quedó ejecutoriada el 26 de mayo de 2023."
+    },
+    {
+      "id": "senado-martha-peralta",
+      "corporation": "Senado de la República",
+      "name": "Martha Isabel Peralta Epieyú",
+      "district": "Nacional",
+      "x_handle": "marthaperaltae",
+      "account_url": "https://x.com/marthaperaltae",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-ivan-cepeda",
+      "corporation": "Senado de la República",
+      "name": "Iván Cepeda Castro",
+      "district": "Nacional",
+      "x_handle": "IvanCepedaCast",
+      "account_url": "https://x.com/IvanCepedaCast",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-piedad-cordoba",
+      "corporation": "Senado de la República",
+      "name": "Piedad Esneda Córdoba Ruiz",
+      "district": "Nacional",
+      "x_handle": "piedadcordoba",
+      "account_url": "https://x.com/piedadcordoba",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2024-01-21"
+      ],
+      "notes": "Titular; falleció el 20 de enero de 2024."
+    },
+    {
+      "id": "senado-pedro-florez",
+      "corporation": "Senado de la República",
+      "name": "Pedro Hernando Flórez Porras",
+      "district": "Nacional",
+      "x_handle": "pedrohflorez",
+      "account_url": "https://x.com/pedrohflorez",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta corregida el 17-09-2026: @PedroFlorezP no devolvía resultados; @pedrohflorez aparece citado por Iván Cepeda el 21-07-2022 junto a @GloriaFlorezSI."
+    },
+    {
+      "id": "senado-isabel-zuleta",
+      "corporation": "Senado de la República",
+      "name": "Isabel Cristina Zuleta López",
+      "district": "Nacional",
+      "x_handle": "ISAZULETA",
+      "account_url": "https://x.com/ISAZULETA",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-alex-florez",
+      "corporation": "Senado de la República",
+      "name": "Álex Javier Flórez Hernández",
+      "district": "Nacional",
+      "x_handle": "AlexFlorezH",
+      "account_url": "https://x.com/AlexFlorezH",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-clara-lopez",
+      "corporation": "Senado de la República",
+      "name": "Clara Eugenia López Obregón",
+      "district": "Nacional",
+      "x_handle": "ClaraLopezObre",
+      "account_url": "https://x.com/ClaraLopezObre",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-robert-daza",
+      "corporation": "Senado de la República",
+      "name": "Robert Daza Guevara",
+      "district": "Nacional",
+      "x_handle": "RobertDazaG",
+      "account_url": "https://x.com/RobertDazaG",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=5146&view=page",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-esmeralda-hernandez",
+      "corporation": "Senado de la República",
+      "name": "Yuly Esmeralda Hernández Silva",
+      "district": "Nacional",
+      "x_handle": "EsmeHernandezSi",
+      "account_url": "https://x.com/EsmeHernandezSi",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?view=page&id=4337",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-wilson-arias",
+      "corporation": "Senado de la República",
+      "name": "Wilson Néber Arias Castillo",
+      "district": "Nacional",
+      "x_handle": "wilsonariasc",
+      "account_url": "https://x.com/wilsonariasc",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-gloria-florez",
+      "corporation": "Senado de la República",
+      "name": "Gloria Inés Flórez Schneider",
+      "district": "Nacional",
+      "x_handle": "GloriaFlorezSI",
+      "account_url": "https://x.com/GloriaFlorezSI",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular."
+    },
+    {
+      "id": "senado-cesar-pachon",
+      "corporation": "Senado de la República",
+      "name": "César Augusto Pachón Achury",
+      "district": "Nacional",
+      "x_handle": "CesarPachonAgro",
+      "account_url": "https://x.com/CesarPachonAgro",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2023-03-28"
+      ],
+      "notes": "Titular; Catalina Pérez se posesionó en su lugar el 28 de marzo de 2023."
+    },
+    {
+      "id": "senado-sandra-jaimes",
+      "corporation": "Senado de la República",
+      "name": "Sandra Yaneth Jaimes Cruz",
+      "district": "Nacional",
+      "x_handle": "SandraJaimesC",
+      "account_url": "https://x.com/SandraJaimesC",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. Cuenta confirmada en documentos legislativos oficiales."
+    },
+    {
+      "id": "senado-paulino-riascos",
+      "corporation": "Senado de la República",
+      "name": "Paulino Riascos Riascos",
+      "district": "Nacional",
+      "x_handle": "BenkosPacifico",
+      "account_url": "https://x.com/BenkosPacifico",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Elegido en la lista del Pacto Histórico; posteriormente se apartó de la coalición."
+    },
+    {
+      "id": "senado-jael-quiroga",
+      "corporation": "Senado de la República",
+      "name": "Jael Quiroga Carrillo",
+      "district": "Nacional",
+      "x_handle": "JahelUp",
+      "account_url": "https://x.com/JahelUp",
+      "official_source_url": "https://www.senado.gov.co/index.php/el-senado/noticias/3889-asi-quedaron-integradas-las-comisiones-constitucionales-del-senado",
+      "service_intervals": [
+        "2022-07-20/2026-07-20"
+      ],
+      "notes": "Titular. El nombre aparece como Jael/Jahel en distintas fuentes."
+    },
+    {
+      "id": "senado-carlos-benavides",
+      "corporation": "Senado de la República",
+      "name": "Carlos Alberto Benavides Mora",
+      "district": "Nacional",
+      "x_handle": "albertobemo",
+      "account_url": "https://x.com/albertobemo",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=5106&view=page",
+      "service_intervals": [
+        "2023-01-11/2026-07-20"
+      ],
+      "notes": "Reemplazó a Gustavo Bolívar."
+    },
+    {
+      "id": "senado-catalina-perez",
+      "corporation": "Senado de la República",
+      "name": "Catalina del Socorro Pérez Pérez",
+      "district": "Nacional",
+      "x_handle": "Catalinaperezp_",
+      "account_url": "https://x.com/Catalinaperezp_",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=5151&view=page",
+      "service_intervals": [
+        "2023-03-28/2026-07-20"
+      ],
+      "notes": "Reemplazó a César Pachón."
+    },
+    {
+      "id": "senado-julio-estrada",
+      "corporation": "Senado de la República",
+      "name": "Julio César Estrada Cordero",
+      "district": "Nacional",
+      "x_handle": "JulioESenador",
+      "account_url": "https://x.com/JulioESenador",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=5129&view=page",
+      "service_intervals": [
+        "2023-05-30/2026-07-20"
+      ],
+      "notes": "Reemplazó a Roy Barreras. Cuenta corregida el 17-09-2026: @cessar22 no devolvió ninguna publicación en 17 trimestres; @JulioESenador aparece citado por Jael Quiroga (13-08-2024) al asumir la presidencia de la Comisión de DDHH y por Isabel Zuleta con la bancada indígena."
+    },
+    {
+      "id": "senado-ferney-silva",
+      "corporation": "Senado de la República",
+      "name": "Ferney Silva Idrobo",
+      "district": "Nacional",
+      "x_handle": "ferneysilvaid",
+      "account_url": "https://x.com/ferneysilvaid",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=6141&view=page",
+      "service_intervals": [
+        "2024-02-20/2026-07-20"
+      ],
+      "notes": "Reemplazó a Piedad Córdoba."
+    },
+    {
+      "id": "senado-sonia-bernal",
+      "corporation": "Senado de la República",
+      "name": "Sonia Shirley Bernal Sánchez",
+      "district": "Nacional",
+      "x_handle": "SoniaSBernalS",
+      "account_url": "https://x.com/SoniaSBernalS",
+      "official_source_url": "https://www.senado.gov.co/index.php/component/sppagebuilder/?id=6126&view=page",
+      "service_intervals": [
+        "2024-04-03/2026-02-12"
+      ],
+      "notes": "Reemplazó temporalmente a Alexander López."
+    }
+  ]
+}
