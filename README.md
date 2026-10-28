@@ -331,6 +331,10 @@ import pandas as pd
 df = pd.read_csv("mi_corpus.csv", sep=";", encoding="utf-8-sig")
 ```
 
+Los textos conservan sus saltos de línea, así que una fila ocupa varias líneas
+del archivo: no uses `head`, `tail` ni `wc -l` sobre el CSV, porque parten las
+filas a la mitad. Lee siempre con un lector de CSV.
+
 También deja `*_descarga.log`, `*_progreso.json` y la carpeta de lotes, que es la
 que permite reanudar y auditar.
 
