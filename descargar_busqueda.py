@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
-"""Descarga por día y combina publicaciones sobre prioridad nacional/patria."""
+"""Descarga de X todas las publicaciones que contienen ciertos términos.
+
+Busca día por día (o en lotes de pocos días) en todas las cuentas, no sólo en
+una lista. Cada día terminado deja un marcador, así que la descarga se puede
+interrumpir y continuar. Además del filtro de la búsqueda, comprueba en local
+que el texto contenga literalmente alguno de los términos: X devuelve
+publicaciones de contexto que no los mencionan, y sin esa comprobación el corpus
+queda contaminado.
+
+Ejemplo:
+
+    python descargar_busqueda.py --term "Prioridad Nacional" --term #PrioridadNacional \
+        --start 2026-03-01 --end 2026-08-01 --output prioridad_nacional.csv
+"""
 
 from __future__ import annotations
 
@@ -11,9 +24,9 @@ import sys
 import time
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Sequence
 
-from scraper_x_mejorado import (
+from scraper_x import (
     SCRIPT_DIR,
     TweetRecord,
     create_driver,
@@ -26,30 +39,31 @@ from scraper_x_mejorado import (
 )
 
 
-TERMS = (
-    "Prioridad Nacional",
-    "#PrioridadNacional",
-    "Primero la patria",
-    "#primeroporlapatria",
-)
-SEARCH_EXPRESSION = (
-    '("Prioridad Nacional" OR #PrioridadNacional OR '
-    '"Primero la patria" OR #primeroporlapatria)'
-)
+def search_expression(terms: Sequence[str]) -> str:
+    """Convierte una lista de términos en la expresión OR que entiende X.
+
+    Las expresiones de varias palabras van entre comillas para que X las busque
+    como frase; los hashtags y las palabras sueltas van tal cual.
+    """
+
+    if not terms:
+        raise ValueError("Hay que indicar al menos un término de búsqueda.")
+    partes = [term if term.startswith("#") or " " not in term else f'"{term}"' for term in terms]
+    return "(" + " OR ".join(partes) + ")" if len(partes) > 1 else partes[0]
 
 
-def range_query(start_day: date, end_day: date) -> str:
+def range_query(start_day: date, end_day: date, expression: str) -> str:
     if start_day >= end_day:
         raise ValueError("El inicio del intervalo debe ser anterior al final.")
     return (
-        f"{SEARCH_EXPRESSION} "
+        f"{expression} "
         f"since:{start_day.isoformat()}_00:00:00_UTC "
         f"until:{end_day.isoformat()}_00:00:00_UTC"
     )
 
 
-def daily_query(day: date) -> str:
-    return range_query(day, day + timedelta(days=1))
+def daily_query(day: date, expression: str) -> str:
+    return range_query(day, day + timedelta(days=1), expression)
 
 
 def earliest_record_day(
@@ -68,17 +82,17 @@ def earliest_record_day(
     return min(days, default=None)
 
 
-def read_matching_records(path: Path) -> dict[str, TweetRecord]:
+def read_matching_records(path: Path, terms: Sequence[str], expression: str) -> dict[str, TweetRecord]:
     if not path.is_file():
         return {}
 
     records: dict[str, TweetRecord] = {}
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         for row in csv.DictReader(handle, delimiter=";"):
-            if not find_matching_terms(row.get("text", ""), TERMS):
+            if not find_matching_terms(row.get("text", ""), terms):
                 continue
-            source_query = row.get("source_query", "") or SEARCH_EXPRESSION
-            record = record_from_legacy_row(row, source_query, TERMS)
+            source_query = row.get("source_query", "") or expression
+            record = record_from_legacy_row(row, source_query, terms)
             if record:
                 records[record.tweet_id] = record
     return records
@@ -88,28 +102,43 @@ def merge_records(
     seed: dict[str, TweetRecord],
     parts_directory: Path,
     output: Path,
+    terms: Sequence[str],
+    expression: str,
 ) -> dict[str, TweetRecord]:
     merged = dict(seed)
     for part in sorted(parts_directory.glob("*.csv")):
-        merged.update(read_matching_records(part))
+        merged.update(read_matching_records(part, terms, expression))
     save_records_atomic(merged.values(), output)
     return merged
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--start", type=date.fromisoformat, default=date(2026, 3, 1))
+    parser.add_argument(
+        "--term",
+        action="append",
+        default=[],
+        required=True,
+        help="Término o frase a buscar. Repetible: --term \"Prioridad Nacional\" --term #Hashtag",
+    )
+    parser.add_argument(
+        "--query",
+        help="Expresión de búsqueda completa de X, por si necesitas operadores "
+        "(lang:, from:, -filter:replies). Reemplaza la que se arma con --term, "
+        "pero el filtro local sigue exigiendo que el texto contenga algún --term.",
+    )
+    parser.add_argument("--start", type=date.fromisoformat, required=True, help="Primer día (AAAA-MM-DD).")
     parser.add_argument(
         "--end",
         type=date.fromisoformat,
-        default=date(2026, 8, 1),
-        help="Límite exclusivo; 2026-08-01 incluye todo el 31 de julio.",
+        required=True,
+        help="Límite exclusivo: 2026-08-01 incluye todo el 31 de julio.",
     )
-    parser.add_argument("--output", type=Path, default=SCRIPT_DIR / "prioridad_nacional.csv")
+    parser.add_argument("--output", type=Path, default=SCRIPT_DIR / "busqueda.csv")
     parser.add_argument(
         "--parts-directory",
         type=Path,
-        default=SCRIPT_DIR / "prioridad_nacional_partes",
+        help="Carpeta de lotes diarios. Por omisión, el nombre del CSV más '_partes'.",
     )
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--driver", type=Path)
@@ -143,8 +172,14 @@ def main() -> int:
     if args.retry_backoff < 0:
         raise ValueError("--retry-backoff no puede ser negativo.")
 
+    terms = tuple(args.term)
+    expression = args.query or search_expression(terms)
     output = args.output.expanduser().resolve()
-    parts_directory = args.parts_directory.expanduser().resolve()
+    parts_directory = (
+        args.parts_directory.expanduser().resolve()
+        if args.parts_directory
+        else output.with_name(f"{output.stem}_partes")
+    )
     parts_directory.mkdir(parents=True, exist_ok=True)
     log_path = output.with_name(f"{output.stem}_descarga.log")
     logging.basicConfig(
@@ -159,7 +194,8 @@ def main() -> int:
         shutil.copy2(output, backup)
         logging.info("Checkpoint inicial respaldado en %s", backup)
 
-    seed = read_matching_records(output)
+    logging.info("Búsqueda: %s", expression)
+    seed = read_matching_records(output, terms, expression)
     logging.info("Coincidencias exactas recuperadas del primer checkpoint: %d", len(seed))
 
     profile = discover_firefox_profile(args.profile)
@@ -192,7 +228,7 @@ def main() -> int:
             ):
                 batch_end += timedelta(days=1)
 
-            query = range_query(day, batch_end)
+            query = range_query(day, batch_end, expression)
             last_day = batch_end - timedelta(days=1)
             period_label = day.isoformat()
             part_stem = day.isoformat()
@@ -204,7 +240,7 @@ def main() -> int:
                 parts_directory / f"{(day + timedelta(days=offset)).isoformat()}.done"
                 for offset in range((batch_end - day).days)
             ]
-            current_records = read_matching_records(current_part)
+            current_records = read_matching_records(current_part, terms, expression)
             next_day = batch_end
             logging.info(
                 "Periodo %s | registros recuperados=%d | consulta=%s",
@@ -219,7 +255,7 @@ def main() -> int:
                     stats = scrape(
                         driver=driver,
                         query=query,
-                        match_terms=TERMS,
+                        match_terms=terms,
                         records=current_records,
                         max_scrolls=args.max_scrolls,
                         no_new_limit=args.no_new_limit,
@@ -230,7 +266,7 @@ def main() -> int:
                         output=current_part,
                     )
                     save_records_atomic(current_records.values(), current_part)
-                    merged = merge_records(seed, parts_directory, output)
+                    merged = merge_records(seed, parts_directory, output, terms, expression)
                     logging.info(
                         "Periodo %s terminado | parte=%d | total combinado=%d | %s",
                         period_label,
@@ -288,7 +324,7 @@ def main() -> int:
                     )
                     if current_records:
                         save_records_atomic(current_records.values(), current_part)
-                        merge_records(seed, parts_directory, output)
+                        merge_records(seed, parts_directory, output, terms, expression)
                     try:
                         driver.quit()
                     except Exception:
@@ -313,7 +349,7 @@ def main() -> int:
     finally:
         if current_part and current_records:
             save_records_atomic(current_records.values(), current_part)
-        merged = merge_records(seed, parts_directory, output)
+        merged = merge_records(seed, parts_directory, output, terms, expression)
         logging.info("Resultado combinado: %d publicaciones en %s", len(merged), output)
         if driver is not None:
             try:

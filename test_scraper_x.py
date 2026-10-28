@@ -6,14 +6,17 @@ from types import SimpleNamespace
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
-from descargar_prioridad_nacional import (
-    SEARCH_EXPRESSION,
-    TERMS,
+from descargar_busqueda import (
     daily_query,
     earliest_record_day,
     range_query,
+    search_expression,
 )
-from scraper_x_mejorado import (
+
+# Términos de ejemplo: ahora se pasan por --term en vez de estar en el código.
+TERMS = ("Prioridad Nacional", "#PrioridadNacional", "Primero la patria")
+SEARCH_EXPRESSION = search_expression(TERMS)
+from scraper_x import (
     keep_longest_text,
     DEFAULT_QUERY,
     TweetRecord,
@@ -31,29 +34,30 @@ from scraper_x_mejorado import (
 
 class ScraperUtilitiesTest(unittest.TestCase):
     def test_global_priority_query_has_no_candidate_filter(self):
-        query = daily_query(date(2026, 3, 1))
+        query = daily_query(date(2026, 3, 1), SEARCH_EXPRESSION)
 
+        # Una búsqueda temática recorre todas las cuentas: no debe filtrar por autor.
         self.assertNotIn("from:", query.casefold())
-        self.assertEqual(
-            TERMS,
-            (
-                "Prioridad Nacional",
-                "#PrioridadNacional",
-                "Primero la patria",
-                "#primeroporlapatria",
-            ),
-        )
         self.assertTrue(query.startswith(SEARCH_EXPRESSION))
         self.assertIn("since:2026-03-01_00:00:00_UTC", query)
         self.assertIn("until:2026-03-02_00:00:00_UTC", query)
 
+    def test_search_expression_quotes_phrases_only(self) -> None:
+        self.assertEqual(
+            search_expression(("Prioridad Nacional", "#Hashtag", "palabra")),
+            '("Prioridad Nacional" OR #Hashtag OR palabra)',
+        )
+        self.assertEqual(search_expression(("#Solo",)), "#Solo")
+        with self.assertRaises(ValueError):
+            search_expression(())
+
     def test_range_query_uses_exclusive_end_date(self):
-        query = range_query(date(2026, 3, 25), date(2026, 3, 28))
+        query = range_query(date(2026, 3, 25), date(2026, 3, 28), SEARCH_EXPRESSION)
 
         self.assertIn("since:2026-03-25_00:00:00_UTC", query)
         self.assertIn("until:2026-03-28_00:00:00_UTC", query)
         with self.assertRaises(ValueError):
-            range_query(date(2026, 3, 28), date(2026, 3, 28))
+            range_query(date(2026, 3, 28), date(2026, 3, 28), SEARCH_EXPRESSION)
 
     def test_earliest_record_day_detects_truncated_batch(self):
         records = [
@@ -175,9 +179,9 @@ class ScraperUtilitiesTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "resultado.csv"
             with (
-                patch("scraper_x_mejorado.configure_logging"),
-                patch("scraper_x_mejorado.create_driver", side_effect=RuntimeError("fallo")),
-                patch("scraper_x_mejorado.logging.exception"),
+                patch("scraper_x.configure_logging"),
+                patch("scraper_x.create_driver", side_effect=RuntimeError("fallo")),
+                patch("scraper_x.logging.exception"),
             ):
                 exit_code = main(["--output", str(output), "--fresh"])
 

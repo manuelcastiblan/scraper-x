@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
-from scraper_x_mejorado import (
+from scraper_x import (
     CSV_FIELDS,
     SCRIPT_DIR,
     TweetRecord,
@@ -38,9 +38,9 @@ from scraper_x_mejorado import (
 )
 
 
-DEFAULT_ROSTER = SCRIPT_DIR / "pacto_historico_2022_2026.json"
-DEFAULT_OUTPUT = SCRIPT_DIR / "cuentas_pacto_historico_2022_2026.csv"
-DEFAULT_PARTS = SCRIPT_DIR / "cuentas_pacto_historico_partes"
+DEFAULT_ROSTER = SCRIPT_DIR / "censo.json"
+DEFAULT_OUTPUT = SCRIPT_DIR / "corpus.csv"
+DEFAULT_PARTS = SCRIPT_DIR / "corpus_partes"
 
 ENRICHED_FIELDS = [
     "corporation",
@@ -424,9 +424,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--start", type=parse_aware_datetime)
     parser.add_argument("--end", type=parse_aware_datetime, help="Límite exclusivo.")
     parser.add_argument("--account", action="append", default=[], help="ID del censo o @usuario.")
-    parser.add_argument("--corporation", choices=("camara", "senado"))
+    parser.add_argument(
+        "--corporation",
+        help="Filtra por el campo corporation del censo (subcadena, sin acentos "
+        "ni mayúsculas obligatorias): --corporation senado, --corporation ministerio.",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--parts-directory", type=Path, default=DEFAULT_PARTS)
+    parser.add_argument(
+        "--parts-directory",
+        type=Path,
+        help="Carpeta de lotes. Por omisión, el nombre del CSV de salida más '_partes'.",
+    )
     parser.add_argument("--profile", type=Path)
     parser.add_argument("--driver", type=Path)
     parser.add_argument(
@@ -496,7 +504,11 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("--timeout debe ser positivo y --retry-backoff no puede ser negativo.")
 
     output = args.output.expanduser().resolve()
-    parts_directory = args.parts_directory.expanduser().resolve()
+    parts_directory = (
+        args.parts_directory.expanduser().resolve()
+        if args.parts_directory
+        else output.with_name(f"{output.stem}_partes")
+    )
     initial_batches = len(accounts) * len(windows)
     by_corporation = Counter(account.corporation for account in accounts)
     print(

@@ -19,7 +19,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from descargar_cuentas_pacto_historico import (
+from descargar_cuentas import (
     DEFAULT_PARTS,
     DEFAULT_ROSTER,
     Batch,
@@ -45,7 +45,8 @@ def parse_stem(stem: str, tzinfo) -> tuple[datetime, datetime]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--roster", type=Path, default=DEFAULT_ROSTER)
-    parser.add_argument("--parts-directory", type=Path, default=DEFAULT_PARTS)
+    parser.add_argument("--parts-directory", type=Path, default=DEFAULT_PARTS,
+                        help="Carpeta de lotes de la descarga a revisar.")
     parser.add_argument("--min-records", type=int, default=5)
     parser.add_argument("--min-expected", type=float, default=5.0)
     parser.add_argument("--apply", action="store_true")

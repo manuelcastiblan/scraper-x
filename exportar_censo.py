@@ -13,7 +13,7 @@ import csv
 import sys
 from pathlib import Path
 
-from descargar_cuentas_pacto_historico import DEFAULT_ROSTER, load_roster
+from descargar_cuentas import DEFAULT_ROSTER, load_roster
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_SHEET = SCRIPT_DIR / "pacto_historico_2022_2026.csv"

@@ -3,7 +3,7 @@
 
 El descargador leía el texto tal como X lo muestra en la cronología, donde las
 publicaciones largas aparecen recortadas tras "Mostrar más". Ese clic ya se
-restauró en ``scraper_x_mejorado.extract_text``, pero las publicaciones bajadas
+restauró en ``scraper_x.extract_text``, pero las publicaciones bajadas
 antes conservan el texto cortado. Este script abre cada publicación afectada por
 su URL, expande el texto y reescribe el registro en el CSV del lote que lo
 contiene; el CSV combinado se regenera después con el propio descargador.
@@ -26,8 +26,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from descargar_cuentas_pacto_historico import DEFAULT_PARTS, DEFAULT_ROSTER, load_roster
-from scraper_x_mejorado import (
+from descargar_cuentas import DEFAULT_PARTS, DEFAULT_ROSTER, load_roster
+from scraper_x import (
     create_driver,
     discover_firefox_profile,
     extract_text,
@@ -75,7 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     signal.signal(signal.SIGTERM, detener)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--roster", type=Path, default=DEFAULT_ROSTER)
-    parser.add_argument("--parts-directory", type=Path, default=DEFAULT_PARTS)
+    parser.add_argument("--parts-directory", type=Path, default=DEFAULT_PARTS,
+                        help="Carpeta de lotes de la descarga a revisar.")
     parser.add_argument("--state", type=Path, default=Path("reparacion_textos_estado.json"))
     parser.add_argument("--min-length", type=int, default=200)
     parser.add_argument("--timeout", type=float, default=25.0)

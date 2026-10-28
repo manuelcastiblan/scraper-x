@@ -2,7 +2,7 @@
 """Extrae publicaciones de una búsqueda de X con Selenium y guardado reanudable.
 
 Ejemplo:
-    python scraper_x_mejorado.py
+    python scraper_x.py
 
 La fecha de ``until:`` se interpreta como límite exclusivo. Por eso la consulta
 predeterminada usa ``until:2026-06-22`` para incluir todo el 21 de junio.
@@ -33,8 +33,8 @@ DEFAULT_QUERY = (
     "(from:IvanCepedaCast OR from:ABDELAESPRIELLA) "
     "since:2026-06-01 until:2026-06-22"
 )
-DEFAULT_OUTPUT = SCRIPT_DIR / "candidatos_final.csv"
-LOCAL_GECKODRIVER = SCRIPT_DIR / "geckodriver"
+DEFAULT_OUTPUT = SCRIPT_DIR / "busqueda_simple.csv"
+LOCAL_GECKODRIVER_NAMES = ("geckodriver", "geckodriver.exe")
 
 TWEET_SELECTOR = 'article[data-testid="tweet"]'
 STATUS_RE = re.compile(
@@ -206,9 +206,15 @@ def discover_firefox_profile(explicit: Path | None = None) -> Path | None:
         return discover_firefox_profile(Path(configured))
 
     candidates = [
+        # macOS, Linux y Windows (APPDATA es el que usa el instalador oficial).
         Path.home() / "Library/Application Support/Firefox/profiles.ini",
         Path.home() / ".mozilla/firefox/profiles.ini",
+        Path.home() / "snap/firefox/common/.mozilla/firefox/profiles.ini",
     ]
+    appdata = os.environ.get("APPDATA")
+    if appdata:
+        candidates.append(Path(appdata) / "Mozilla/Firefox/profiles.ini")
+    candidates.append(Path.home() / "AppData/Roaming/Mozilla/Firefox/profiles.ini")
     ini_path = next((candidate for candidate in candidates if candidate.is_file()), None)
     if not ini_path:
         return None
@@ -242,8 +248,10 @@ def resolve_driver_path(explicit: Path | None = None) -> Path | None:
         if not driver_path.is_file():
             raise FileNotFoundError(f"No existe geckodriver: {driver_path}")
         return driver_path
-    if LOCAL_GECKODRIVER.is_file():
-        return LOCAL_GECKODRIVER
+    for name in LOCAL_GECKODRIVER_NAMES:
+        candidate = SCRIPT_DIR / name
+        if candidate.is_file():
+            return candidate
     return None
 
 

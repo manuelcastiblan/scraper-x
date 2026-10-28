@@ -7,9 +7,8 @@ from collections import Counter
 from datetime import timedelta
 from pathlib import Path
 
-from descargar_cuentas_pacto_historico import (
-    DEFAULT_ROSTER,
-    Account,
+from descargar_cuentas import (
+        Account,
     Batch,
     account_query,
     batch_paths,
@@ -22,13 +21,13 @@ from descargar_cuentas_pacto_historico import (
     split_batch,
     truncation_boundary,
 )
-from scraper_x_mejorado import TweetRecord, save_records_atomic
+from scraper_x import TweetRecord, save_records_atomic
 
 
 class RosterTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.scope, cls.accounts = load_roster(DEFAULT_ROSTER)
+        cls.scope, cls.accounts = load_roster(Path("ejemplo_pacto_historico.json"))
 
     def test_historical_roster_counts_and_uniqueness(self) -> None:
         counts = Counter(account.corporation for account in self.accounts)
