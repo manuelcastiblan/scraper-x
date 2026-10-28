@@ -336,7 +336,24 @@ que permite reanudar y auditar.
 
 ---
 
-## 10. Pruebas
+## 10. Cuaderno de ejemplo
+
+`ejemplo.ipynb` recorre todo el flujo con descargas pequeñas: comprobar el
+entorno, verificar la sesión de X, descargar dos días por términos y un mes de
+una cuenta, revisar la calidad del resultado y hacer un primer análisis.
+
+```bash
+pip install pandas matplotlib jupyter
+jupyter lab ejemplo.ipynb     # o: jupyter notebook ejemplo.ipynb
+```
+
+Ábrelo desde esta carpeta, para que encuentre los scripts y el censo de ejemplo.
+Las descargas largas conviene lanzarlas fuera del cuaderno (§6): duran días y el
+kernel no debería quedarse ocupado tanto tiempo.
+
+---
+
+## 11. Pruebas
 
 ```bash
 python -m unittest test_scraper_x test_descargar_cuentas
@@ -348,7 +365,7 @@ protección del texto recuperado.
 
 ---
 
-## 11. Antes de publicar el corpus
+## 12. Antes de publicar el corpus
 
 - La descarga sólo lee contenido **público**, pero scrapear va contra los
   términos de servicio de X. Es tu decisión y tu riesgo.

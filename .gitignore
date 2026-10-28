@@ -9,6 +9,10 @@ __pycache__/
 *_progreso.json
 reparacion_textos_estado.json
 mi_corpus*.csv
+ejemplo_terminos*.csv
+ejemplo_cuenta*.csv
+corpus*.csv
+.ipynb_checkpoints/
 cuentas_pacto_historico_2022_2026*.csv
 prioridad_nacional*.csv
 
