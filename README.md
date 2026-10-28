@@ -38,8 +38,9 @@ la herramienta sirve para cualquier otra bancada cambiando un archivo JSON.
 ## 2. Requisitos
 
 - **Python 3.11 o superior** (probado en 3.14).
-- **Firefox** instalado, con **sesión iniciada en X** en el perfil que se va a usar.
-  La búsqueda avanzada de X no funciona sin sesión.
+- **Firefox** instalado y una **cuenta de X con sesión iniciada a mano** en el
+  perfil que se va a usar (ver §3). La búsqueda avanzada de X no devuelve nada
+  sin sesión, y el scraper no inicia sesión por ti.
 - **geckodriver**. Selenium 4 lo descarga solo (Selenium Manager); si prefieres
   fijarlo, apunta la variable `GECKODRIVER` al ejecutable.
 - Firefox **no puede estar abierto** con ese mismo perfil mientras corre el scraper.
@@ -52,7 +53,64 @@ pip install -r requirements.txt
 
 ---
 
-## 3. Preparar el censo (el paso que de verdad importa)
+## 3. Preparar la sesión de X en Firefox
+
+El scraper **no inicia sesión ni maneja contraseñas**. Reutiliza las cookies de
+un perfil de Firefox en el que una persona ya entró a X a mano. Es el único paso
+manual, se hace una vez y dura semanas.
+
+**Lo recomendable: un perfil aparte sólo para scraping**, para poder seguir
+navegando en el perfil normal mientras la descarga corre.
+
+1. Crea el perfil y ábrelo:
+
+   ```bash
+   # macOS
+   /Applications/Firefox.app/Contents/MacOS/firefox --no-remote -P
+   # Linux
+   firefox --no-remote -P
+   ```
+
+   En el administrador que aparece, "Crear perfil", nómbralo `scraper` e inícialo.
+
+2. En esa ventana entra a <https://x.com/login> y **escribe tú** el usuario, la
+   contraseña y el segundo factor si lo tienes. Marca que recuerde la sesión.
+
+3. Comprueba que la búsqueda avanzada responde: abre
+   `https://x.com/search?q=from%3Apetrogustavo&f=live`. Si pide iniciar sesión,
+   la sesión no quedó guardada.
+
+4. **Cierra Firefox por completo.** Firefox bloquea el perfil mientras está
+   abierto, y el scraper no puede usarlo al mismo tiempo.
+
+5. Averigua la ruta del perfil (`about:profiles` → "Directorio raíz") y pásala
+   al scraper:
+
+   ```bash
+   export X_FIREFOX_PROFILE="$HOME/Library/Application Support/Firefox/Profiles/xxxxxxxx.scraper"
+   ```
+
+   Sin esa variable, el scraper toma el perfil marcado como predeterminado en
+   `profiles.ini`, que normalmente es el de uso diario.
+
+**Cosas que conviene saber**
+
+- La descarga corre **sin ventana visible** (headless) con esa sesión. Con
+  `--headed` se ve el navegador, útil para comprobar que entró bien.
+- Si X cierra la sesión, el scraper lo detecta como estado `login` y falla el
+  lote en vez de guardar datos vacíos. Hay que volver a entrar a mano y
+  relanzar; lo ya descargado se conserva.
+- **Nunca pongas credenciales en los scripts ni en variables de entorno.** El
+  código nunca las pide y no debería poder verlas.
+- Scrapear con la cuenta personal implica un riesgo real de límites y de
+  suspensión. Mucha gente usa una cuenta secundaria; evalúalo según los términos
+  de servicio de X y las reglas de tu institución.
+- Si varias personas replican el estudio, **cada una necesita su propia sesión**.
+  Las cookies no se comparten: son credenciales.
+
+---
+
+## 4. Preparar el censo (el paso que de verdad importa)
 
 El scraper no adivina a quién descargar: lee un JSON con la lista de personas.
 Parte de `censo_plantilla.json` y usa `pacto_historico_2022_2026.json` como
@@ -103,7 +161,7 @@ python exportar_censo_pacto_historico.py --roster mi_censo.json --output mi_cens
 
 ---
 
-## 4. Ejecutar la descarga
+## 5. Ejecutar la descarga
 
 Primero, sin abrir el navegador, para ver el plan:
 
@@ -139,7 +197,7 @@ continuar: el mismo comando. Omite lo ya terminado.
 
 ---
 
-## 5. Qué esperar de X (planifica con esto)
+## 6. Qué esperar de X (planifica con esto)
 
 - X permite **unas 12 búsquedas nuevas** y luego bloquea entre **9 y 15 minutos**.
 - El ritmo real observado fue de **10 a 30 lotes por hora**.
@@ -159,7 +217,7 @@ nohup caffeinate -i python -u descargar_cuentas_pacto_historico.py ... >> salida
 
 ---
 
-## 6. Verificar antes de analizar
+## 7. Verificar antes de analizar
 
 Nunca des por buena una descarga sin estos tres chequeos.
 
@@ -197,7 +255,7 @@ millones de caracteres** que faltaban.
 
 ---
 
-## 7. Salida
+## 8. Salida
 
 Un CSV con separador `;` y codificación UTF-8 con BOM (Excel lo abre directo):
 
@@ -224,7 +282,7 @@ la carpeta de lotes, que es la que permite reanudar y auditar.
 
 ---
 
-## 8. Descargar por términos en vez de por cuentas
+## 9. Descargar por términos en vez de por cuentas
 
 `descargar_prioridad_nacional.py` hace lo mismo pero buscando expresiones en
 todas las cuentas, día por día, con un filtro local que descarta las
@@ -233,7 +291,7 @@ términos. Útil para hashtags y consignas.
 
 ---
 
-## 9. Pruebas
+## 10. Pruebas
 
 ```bash
 python -m unittest test_scraper_x_mejorado test_descargar_cuentas_pacto_historico
@@ -245,7 +303,7 @@ truncamiento, la reanudación y la protección del texto recuperado.
 
 ---
 
-## 10. Antes de publicar el corpus
+## 11. Antes de publicar el corpus
 
 - La descarga sólo lee contenido **público**, pero scrapear va contra los
   términos de servicio de X. Es tu decisión y tu riesgo.
