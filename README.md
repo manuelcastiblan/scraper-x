@@ -117,6 +117,17 @@ manual, se hace una vez y dura semanas.
    Sin esa variable, el scraper toma el perfil predeterminado de `profiles.ini`,
    que suele ser el de uso diario.
 
+   Hay tres maneras de indicarlo, de mayor a menor prioridad: la opción
+   `--profile RUTA` de cada script, la variable `X_FIREFOX_PROFILE`, y la
+   detección automática. Para `geckodriver` el orden es el mismo: `--driver`,
+   la variable `GECKODRIVER`, un ejecutable junto a los scripts, y si nada de
+   eso aparece lo descarga Selenium Manager. En el cuaderno se declaran las dos
+   rutas en la primera celda (§10).
+
+   Declararlo explícitamente evita un fallo silencioso: si el scraper abre un
+   perfil sin sesión, X lo manda al formulario de acceso y la descarga termina
+   vacía sin ningún error.
+
 **Cosas que conviene saber**
 
 - Corre sin ventana visible. Con `--headed` se ve el navegador, útil para
@@ -342,9 +353,15 @@ que permite reanudar y auditar.
 
 ## 10. Cuaderno de ejemplo
 
-`ejemplo.ipynb` recorre todo el flujo con descargas pequeñas: comprobar el
-entorno, verificar la sesión de X, descargar dos días por términos y un mes de
-una cuenta, revisar la calidad del resultado y hacer un primer análisis.
+`ejemplo.ipynb` recorre todo el flujo con descargas pequeñas: declarar la
+sesión de Firefox y el driver, verificar que X responde, descargar dos días por
+términos y un mes de una cuenta, revisar la calidad del resultado y hacer un
+primer análisis.
+
+La primera celda declara `PERFIL_FIREFOX` y `GECKODRIVER`, e imprime los
+perfiles de Firefox que encuentra con la fecha de sus cookies, para reconocer
+cuál es el que tiene la sesión. Esas dos rutas se le pasan después a cada script
+que lanza el cuaderno, de modo que todo use la misma sesión que se verificó.
 
 ```bash
 pip install pandas matplotlib jupyter
