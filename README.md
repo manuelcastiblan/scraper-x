@@ -46,12 +46,26 @@ ejemplo.
 
 Necesitas **Python 3.11 o superior** (probado en 3.14) y **Firefox**.
 
-> **¿Nunca has instalado Python?** Hay una guía aparte que empieza de cero —
-> Python, Git Bash, Visual Studio Code y Firefox, con comprobaciones paso a
-> paso: [INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md). Está escrita para
-> Windows, que es donde más se atasca el montaje. Va también en Word, para
-> imprimir o repartir: [INSTALACION_WINDOWS.docx](INSTALACION_WINDOWS.docx)
-> (generado desde el Markdown; si editas la guía, edita el `.md`).
+> **¿Nunca has instalado Python?** Hay dos guías aparte que empiezan de cero,
+> con comprobaciones paso a paso y una tabla de errores frecuentes:
+>
+> | | Markdown | Word (para imprimir o repartir) |
+> |---|---|---|
+> | Windows | [INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md) | [INSTALACION_WINDOWS.docx](INSTALACION_WINDOWS.docx) |
+> | macOS | [INSTALACION_MAC.md](INSTALACION_MAC.md) | [INSTALACION_MAC.docx](INSTALACION_MAC.docx) |
+>
+> Los `.docx` se generan desde el Markdown con `herramientas_md2docx.js`; si hay
+> que corregir algo, se edita el `.md`.
+
+**Enlaces de descarga**
+
+| Programa | Enlace |
+|---|---|
+| Python | <https://www.python.org/downloads/> |
+| Firefox | <https://www.mozilla.org/firefox/new/> |
+| geckodriver (sólo si Selenium no puede bajarlo) | <https://github.com/mozilla/geckodriver/releases> |
+| Git para Windows (trae Git Bash) | <https://git-scm.com/download/win> |
+| Visual Studio Code | <https://code.visualstudio.com/Download> |
 
 **macOS / Linux**
 

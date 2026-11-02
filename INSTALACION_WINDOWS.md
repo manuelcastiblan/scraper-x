@@ -38,6 +38,25 @@ causa y su arreglo.
 | **Visual Studio Code** | Editar archivos y correr el cuaderno de ejemplo | ~110 MB |
 | **Firefox** | El navegador que el scraper controla | ~60 MB |
 
+### Enlaces de descarga
+
+Todos son los sitios oficiales. No bajes ninguno de otro lado.
+
+| Programa | Enlace |
+|---|---|
+| Python para Windows | <https://www.python.org/downloads/windows/> |
+| Git para Windows (trae Git Bash) | <https://git-scm.com/download/win> |
+| Visual Studio Code | <https://code.visualstudio.com/Download> |
+| Firefox | <https://www.mozilla.org/firefox/new/> |
+| geckodriver (sólo si hace falta, §8) | <https://github.com/mozilla/geckodriver/releases> |
+
+Y los del proyecto, por si los necesitas:
+
+| Qué | Enlace |
+|---|---|
+| Documentación de Selenium | <https://www.selenium.dev/documentation/> |
+| Buscador avanzado de X | <https://x.com/search-advanced> |
+
 Sobre **Git Bash**: Windows trae PowerShell, que funciona, pero toda la
 documentación de este proyecto y casi todo lo que vas a encontrar en internet
 está escrito para terminales tipo Unix (macOS, Linux). Git Bash te da esa misma
@@ -260,6 +279,39 @@ python -c "import selenium, pandas; print('todo bien')"
 ```
 
 Debe imprimir `todo bien`.
+
+### geckodriver: normalmente no tienes que hacer nada
+
+`geckodriver` es el programa que le permite a Python manejar Firefox. **Selenium
+lo descarga solo** la primera vez que corras el scraper, así que lo habitual es
+no tocarlo.
+
+Hazle caso a esta sección sólo si al correr el scraper aparece un error que
+mencione `geckodriver` o `Selenium Manager`, lo que pasa en redes
+institucionales que bloquean la descarga:
+
+1. Entra a <https://github.com/mozilla/geckodriver/releases>.
+2. En la versión más reciente, abre **Assets** y baja el archivo que termina en
+   **`win64.zip`** (o `win32.zip` en un Windows de 32 bits, hoy raro).
+3. Descomprímelo. Adentro hay un solo archivo: `geckodriver.exe`.
+4. Cópialo a la carpeta `scraper-x`, junto a `scraper_x.py`. El scraper lo busca
+   ahí antes de intentar descargarlo.
+
+Si prefieres dejarlo en otra carpeta, dile dónde está con la variable
+`GECKODRIVER`, en Git Bash:
+
+```bash
+export GECKODRIVER="C:/herramientas/geckodriver.exe"
+```
+
+**Comprobación.**
+
+```bash
+./geckodriver.exe --version
+```
+
+Debe imprimir la versión. Si Windows lo bloquea por venir de internet, abre sus
+**Propiedades** con clic derecho y marca **Desbloquear**.
 
 ---
 
