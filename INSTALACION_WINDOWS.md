@@ -218,10 +218,10 @@ cd /c/investigacion
 ```
 
 ```bash
-git clone URL_DEL_REPOSITORIO scraper-x
+git clone https://github.com/manuelcastiblan/scraper-x.git scraper-x
 ```
 
-Reemplaza `URL_DEL_REPOSITORIO` por la dirección que te hayan dado. Si en cambio
+Si en cambio
 recibiste un archivo `scraper-x.zip`, descomprímelo dentro de
 `C:\investigacion` con clic derecho → **Extraer todo**, y sáltate el `clone`.
 

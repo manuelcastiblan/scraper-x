@@ -46,6 +46,11 @@ ejemplo.
 
 Necesitas **Python 3.11 o superior** (probado en 3.14) y **Firefox**.
 
+```bash
+git clone https://github.com/manuelcastiblan/scraper-x.git
+cd scraper-x
+```
+
 > **¿Nunca has instalado Python?** Hay dos guías aparte que empiezan de cero,
 > con comprobaciones paso a paso y una tabla de errores frecuentes:
 >
@@ -66,6 +71,8 @@ Necesitas **Python 3.11 o superior** (probado en 3.14) y **Firefox**.
 | geckodriver (sólo si Selenium no puede bajarlo) | <https://github.com/mozilla/geckodriver/releases> |
 | Git para Windows (trae Git Bash) | <https://git-scm.com/download/win> |
 | Visual Studio Code | <https://code.visualstudio.com/Download> |
+
+El repositorio vive en <https://github.com/manuelcastiblan/scraper-x>.
 
 **macOS / Linux**
 
