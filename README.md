@@ -49,7 +49,9 @@ Necesitas **Python 3.11 o superior** (probado en 3.14) y **Firefox**.
 > **¿Nunca has instalado Python?** Hay una guía aparte que empieza de cero —
 > Python, Git Bash, Visual Studio Code y Firefox, con comprobaciones paso a
 > paso: [INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md). Está escrita para
-> Windows, que es donde más se atasca el montaje.
+> Windows, que es donde más se atasca el montaje. Va también en Word, para
+> imprimir o repartir: [INSTALACION_WINDOWS.docx](INSTALACION_WINDOWS.docx)
+> (generado desde el Markdown; si editas la guía, edita el `.md`).
 
 **macOS / Linux**
 
