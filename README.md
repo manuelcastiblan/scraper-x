@@ -439,3 +439,18 @@ protección del texto recuperado.
   comité de ética antes de redistribuir.
 - Documenta las limitaciones: sin retuits, sin publicaciones borradas, y huecos
   donde X no entregó resultados.
+
+---
+
+## 13. Licencia
+
+[MIT](LICENSE). Puedes usar, modificar y redistribuir el código, incluso en
+trabajos comerciales, conservando el aviso de copyright. Se entrega sin
+garantía.
+
+La licencia cubre **el código**, no lo que descargues con él: los datos de X
+tienen sus propias condiciones, y las consideraciones de la sección 12 siguen
+siendo tuyas.
+
+Si lo usas en una publicación académica, una cita al repositorio se agradece y
+ayuda a que otros encuentren la herramienta.
