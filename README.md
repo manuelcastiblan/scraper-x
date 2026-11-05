@@ -381,15 +381,26 @@ que permite reanudar y auditar.
 
 ## 10. Cuaderno de ejemplo
 
-`ejemplo.ipynb` recorre todo el flujo con descargas pequeñas: declarar la
-sesión de Firefox y el driver, verificar que X responde, descargar dos días por
-términos y un mes de una cuenta, revisar la calidad del resultado y hacer un
-primer análisis.
+`ejemplo.ipynb` es el camino recomendado para empezar. Son **20 pasos
+cortos**, cada uno con una sola cosa y lo que deberías ver al ejecutarlo:
 
-La primera celda declara `PERFIL_FIREFOX` y `GECKODRIVER`, e imprime los
+| Pasos | Qué cubren |
+|---|---|
+| 0–2 | Instalar las librerías y comprobar que el cuaderno ve el proyecto |
+| 3–5 | Elegir el perfil de Firefox, declararlo y probar la sesión contra X |
+| 6–8 | Entender la consulta que se le manda a X y ver el plan sin descargar |
+| 9–13 | Dos descargas pequeñas, las columnas del CSV y cómo se reanuda |
+| 14–16 | Las tres comprobaciones de calidad |
+| 17–20 | Primer análisis y cómo pasar a un corpus de verdad |
+
+Arranca explicando qué hace el scraper por dentro —los lotes, la detección de
+paginación cortada, la expansión de textos largos— porque varias decisiones de
+uso sólo se entienden sabiendo eso.
+
+El paso 4 declara `PERFIL_FIREFOX` y `GECKODRIVER`; el paso 3 imprime los
 perfiles de Firefox que encuentra con la fecha de sus cookies, para reconocer
-cuál es el que tiene la sesión. Esas dos rutas se le pasan después a cada script
-que lanza el cuaderno, de modo que todo use la misma sesión que se verificó.
+cuál tiene la sesión. Esas dos rutas se le pasan después a cada script que lanza
+el cuaderno, de modo que todo use la misma sesión que se verificó.
 
 ```bash
 pip install pandas matplotlib jupyter
