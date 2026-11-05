@@ -381,35 +381,38 @@ que permite reanudar y auditar.
 
 ## 10. Cuaderno de ejemplo
 
-`ejemplo.ipynb` es el camino recomendado para empezar. Son **20 pasos
-cortos**, cada uno con una sola cosa y lo que deberías ver al ejecutarlo:
+`ejemplo.ipynb` **no usa estos programas**: construye un scraper mínimo desde
+cero, celda por celda, para enseñar de qué está hecho. Son 24 pasos cortos.
 
-| Pasos | Qué cubren |
-|---|---|
-| 0–2 | Instalar las librerías y comprobar que el cuaderno ve el proyecto |
-| 3–5 | Elegir el perfil de Firefox, declararlo y probar la sesión contra X |
-| 6–8 | Entender la consulta que se le manda a X y ver el plan sin descargar |
-| 9–13 | Dos descargas pequeñas, las columnas del CSV y cómo se reanuda |
-| 14–16 | Las tres comprobaciones de calidad |
-| 17–20 | Primer análisis y cómo pasar a un corpus de verdad |
+| Parte | Pasos | Qué se construye |
+|---|---|---|
+| 1 | 0–5 | Instalar, encontrar el perfil de Firefox y abrir el navegador |
+| 2 | 6–14 | Leer **una** publicación: autor, fecha, texto completo, favoritos |
+| 3 | 15–17 | Recorrer la página con scroll y guardar en CSV |
+| 4 | 18–24 | Acotar por fechas, varias cuentas, limpiar, revisar y analizar |
 
-Arranca explicando qué hace el scraper por dentro —los lotes, la detección de
-paginación cortada, la expansión de textos largos— porque varias decisiones de
-uso sólo se entienden sabiendo eso.
+Tres pasos enseñan trampas que hacen que un corpus parezca correcto sin serlo,
+y las tres salieron de ejecutar el cuaderno y mirar el resultado:
 
-El paso 4 declara `PERFIL_FIREFOX` y `GECKODRIVER`; el paso 3 imprime los
-perfiles de Firefox que encuentra con la fecha de sus cookies, para reconocer
-cuál tiene la sesión. Esas dos rutas se le pasan después a cada script que lanza
-el cuaderno, de modo que todo use la misma sesión que se verificó.
+- **Paso 10-11**: X recorta los textos largos a 280 caracteres sin dejar marca.
+  El 10 lo hace ver midiendo lo que hay en pantalla; el 11 lo resuelve.
+- **Paso 12**: X traduce las publicaciones. La primera versión de este cuaderno
+  guardó 96 de 115 traducidas al inglés sin advertirlo.
+- **Paso 20**: cuando una publicación es respuesta, X dibuja también la
+  original, y el scraper se la trae. En la prueba, 43 de 115 eran de otra
+  cuenta.
+
+El paso 23 cierra diciendo qué le falta a ese scraper mínimo —reanudar, detectar
+paginación cortada, aguantar los bloqueos— y remite a los programas de este
+repositorio, que son ese mismo código con esos cuidados añadidos.
 
 ```bash
-pip install pandas matplotlib jupyter
+pip install jupyter
 jupyter lab ejemplo.ipynb     # o: jupyter notebook ejemplo.ipynb
 ```
 
-Ábrelo desde esta carpeta, para que encuentre los scripts y el censo de ejemplo.
-Las descargas largas conviene lanzarlas fuera del cuaderno (§6): duran días y el
-kernel no debería quedarse ocupado tanto tiempo.
+Ábrelo desde esta carpeta. Las descargas largas se lanzan fuera del cuaderno
+(§6): duran días y el kernel no debería quedarse ocupado tanto tiempo.
 
 ---
 
