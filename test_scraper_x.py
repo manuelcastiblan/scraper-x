@@ -19,6 +19,7 @@ SEARCH_EXPRESSION = search_expression(TERMS)
 from scraper_x import (
     keep_longest_text,
     DEFAULT_QUERY,
+    LIKE_LABEL_RE,
     TweetRecord,
     build_search_url,
     extract_status_identity,
@@ -28,6 +29,7 @@ from scraper_x import (
     parse_compact_number,
     parse_query_constraints,
     save_records_atomic,
+    snowflake_to_iso,
     timestamp_matches,
 )
 
@@ -86,6 +88,46 @@ class ScraperUtilitiesTest(unittest.TestCase):
         self.assertEqual(username, "IvanCepedaCast")
         self.assertEqual(tweet_id, "123456")
         self.assertEqual(url, "https://x.com/IvanCepedaCast/status/123456")
+
+    def test_extract_status_identity_accepts_relative_href(self):
+        # La interfaz de 2026 entrega los enlaces sin dominio.
+        username, tweet_id, url = extract_status_identity(
+            "/DCoronell/status/2119859987014942926/analytics"
+        )
+
+        self.assertEqual(username, "DCoronell")
+        self.assertEqual(tweet_id, "2119859987014942926")
+        self.assertEqual(url, "https://x.com/DCoronell/status/2119859987014942926")
+
+    def test_snowflake_to_iso_reads_date_from_identifier(self):
+        # Sin <time> en la página, la fecha sale del identificador.
+        self.assertEqual(
+            snowflake_to_iso("2119859987014942926"),
+            "2026-11-09T18:29:40.655Z",
+        )
+        self.assertTrue(
+            timestamp_matches(
+                snowflake_to_iso("2119859987014942926"),
+                parse_query_constraints("since:2026-11-09 until:2026-11-10"),
+            )
+        )
+        # Los identificadores anteriores a noviembre de 2010 no llevan fecha.
+        with self.assertRaises(ValueError):
+            snowflake_to_iso("123456")
+
+    def test_like_label_gives_exact_count(self):
+        examples = {
+            "1959 Me gustan. Gustar": "1959",
+            "1 Me gusta. Gustar": "1",
+            "36.860 Me gustan. Gustar": "36.860",
+            "1,959 Likes. Like": "1,959",
+        }
+        for label, expected in examples.items():
+            with self.subTest(label=label):
+                self.assertEqual(LIKE_LABEL_RE.match(label).group(1), expected)
+        # Sin número, o abreviado, se usa el texto visible del botón.
+        self.assertIsNone(LIKE_LABEL_RE.match("Me gusta"))
+        self.assertIsNone(LIKE_LABEL_RE.match("1,2 mil Me gustan"))
 
     def test_parse_compact_number(self):
         examples = {
