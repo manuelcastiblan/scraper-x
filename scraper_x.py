@@ -36,7 +36,81 @@ DEFAULT_QUERY = (
 DEFAULT_OUTPUT = SCRIPT_DIR / "busqueda_simple.csv"
 LOCAL_GECKODRIVER_NAMES = ("geckodriver", "geckodriver.exe")
 
-TWEET_SELECTOR = 'article[data-testid="tweet"]'
+# X sirve desde 2026 una interfaz sin los data-testid que tenía antes; los
+# selectores "legacy" se conservan por si alguna cuenta recibe aún la anterior.
+TWEET_SELECTOR = "article"
+LIKE_BUTTON_SELECTOR = (
+    '[data-engagement-action="like"] button, '
+    'button[data-testid="like"], button[data-testid="unlike"]'
+)
+SHOW_MORE_LABELS = ("Mostrar más", "Show more")
+SHOW_ORIGINAL_LABELS = ("Mostrar original", "Show original", "Ver original", "Ver texto original")
+LIKE_LABEL_RE = re.compile(r"^\s*(\d[\d.,  ]*?)\s*(?:me gusta|like)", flags=re.IGNORECASE)
+SNOWFLAKE_EPOCH_MS = 1288834974657  # 2010-11-04T01:42:54.657Z
+FIRST_SNOWFLAKE_ID = 2**35
+
+OWN_ELEMENTS_JS = """
+const article = arguments[0];
+return [...article.querySelectorAll(arguments[1])]
+    .filter(element => element.closest('article') === article);
+"""
+
+OWN_STATUS_HREFS_JS = """
+const article = arguments[0];
+return [...article.querySelectorAll('a[href*="/status/"]')]
+    .filter(link => link.closest('article') === article)
+    .map(link => link.getAttribute('href'));
+"""
+
+ARTICLE_KIND_JS = """
+const hasOwnLink = article => [...article.querySelectorAll('a[href*="/status/"]')]
+    .some(link => link.closest('article') === article);
+const article = arguments[0];
+if (!hasOwnLink(article)) return 'wrapper';
+const parent = article.parentElement ? article.parentElement.closest('article') : null;
+if (!parent) return 'post';
+return hasOwnLink(parent) ? 'quote' : 'repost';
+"""
+
+TEXT_ELEMENTS_JS = """
+const article = arguments[0];
+const own = selector => [...article.querySelectorAll(selector)]
+    .filter(element => element.closest('article') === article);
+const legacy = own('div[data-testid="tweetText"]');
+if (legacy.length || article.querySelector('[data-testid]')) return legacy;
+return own('div[dir="auto"]');
+"""
+
+READ_TEXT_JS = """
+const element = arguments[0], labels = arguments[1];
+let text = (element.innerText || element.textContent || '').trimEnd();
+for (const button of element.querySelectorAll('button')) {
+    const label = button.textContent.trim();
+    if (labels.includes(label) && text.endsWith(label)) {
+        text = text.slice(0, -label.length).trimEnd();
+    }
+}
+return text;
+"""
+
+LABELED_CONTROLS_JS = """
+const article = arguments[0], labels = arguments[1];
+const own = selector => [...article.querySelectorAll(selector)]
+    .filter(element => element.closest('article') === article
+        && labels.includes(element.textContent.trim()));
+const buttons = own('button, [role="button"]');
+return buttons.length ? buttons : own('span').slice(0, 1);
+"""
+
+REAL_NAME_JS = """
+const article = arguments[0], username = arguments[1].toLowerCase();
+const texts = [...article.querySelectorAll('a[href], div[data-testid="User-Name"] span')]
+    .filter(element => element.closest('article') === article)
+    .filter(element => element.tagName !== 'A'
+        || element.getAttribute('href').toLowerCase() === '/' + username)
+    .map(element => element.textContent.trim());
+return texts.find(text => text && !text.startsWith('@') && text.toLowerCase() !== username) || '';
+"""
 STATUS_RE = re.compile(
     r"(?:https?://(?:www\.)?(?:x|twitter)\.com)?/([^/?#]+)/status/(\d+)",
     flags=re.IGNORECASE,
@@ -290,12 +364,55 @@ def create_driver(
     return driver
 
 
+def own_elements(article: Any, selector: str) -> list[Any]:
+    """Elementos del artículo que no pertenecen a otro artículo anidado dentro."""
+
+    return article.parent.execute_script(OWN_ELEMENTS_JS, article, selector)
+
+
+def article_kind(article: Any) -> str:
+    """Clasifica un artículo: "post", "repost", "quote" o "wrapper".
+
+    Desde 2026 X anida artículos. Un repost es un envoltorio ("Fulano
+    reposteó") sin enlace propio que contiene la publicación; una cita es un
+    artículo dentro del de quien cita, recortado y sin contadores. Los
+    envoltorios y las citas no se leen: los primeros no son publicaciones y las
+    segundas son datos a medias.
+    """
+
+    return article.parent.execute_script(ARTICLE_KIND_JS, article)
+
+
+def is_readable_post(article: Any) -> bool:
+    return article_kind(article) in ("post", "repost")
+
+
+def snowflake_to_iso(tweet_id: str) -> str:
+    """Fecha de publicación a partir del identificador, en UTC.
+
+    Desde noviembre de 2010 los identificadores de X llevan en sus primeros
+    bits los milisegundos transcurridos desde SNOWFLAKE_EPOCH_MS. Es la única
+    fuente exacta desde que X quitó el elemento <time> de los resultados.
+    """
+
+    numeric_id = int(tweet_id)
+    if numeric_id < FIRST_SNOWFLAKE_ID:
+        raise ValueError(f"El identificador {tweet_id} es anterior a 2010-11 y no contiene fecha.")
+    published = datetime.fromtimestamp(
+        ((numeric_id >> 22) + SNOWFLAKE_EPOCH_MS) / 1000,
+        timezone.utc,
+    )
+    return published.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
 def visible_status_ids(driver: Any) -> set[str]:
     from selenium.common.exceptions import StaleElementReferenceException
 
     ids: set[str] = set()
     for article in driver.find_elements("css selector", TWEET_SELECTOR):
         try:
+            if not is_readable_post(article):
+                continue
             _, tweet_id, _ = identity_from_article(article)
             ids.add(tweet_id)
         except (ValueError, StaleElementReferenceException):
@@ -304,23 +421,12 @@ def visible_status_ids(driver: Any) -> set[str]:
 
 
 def identity_from_article(article: Any) -> tuple[str, str, str]:
-    from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
-    from selenium.webdriver.common.by import By
-
-    try:
-        time_element = article.find_element(By.TAG_NAME, "time")
-        link = time_element.find_element(
-            By.XPATH,
-            './ancestor::a[contains(@href, "/status/")][1]',
-        )
-        return extract_status_identity(link.get_attribute("href") or "")
-    except (NoSuchElementException, StaleElementReferenceException, ValueError) as primary_error:
-        for link in article.find_elements(By.XPATH, './/a[contains(@href, "/status/")]'):
-            try:
-                return extract_status_identity(link.get_attribute("href") or "")
-            except ValueError:
-                continue
-        raise ValueError("El artículo no contiene una URL /status/ válida.") from primary_error
+    for href in article.parent.execute_script(OWN_STATUS_HREFS_JS, article):
+        try:
+            return extract_status_identity(href or "")
+        except ValueError:
+            continue
+    raise ValueError("El artículo no contiene una URL /status/ propia.")
 
 
 def find_article_by_id(driver: Any, tweet_id: str) -> Any | None:
@@ -328,6 +434,8 @@ def find_article_by_id(driver: Any, tweet_id: str) -> Any | None:
 
     for article in driver.find_elements("css selector", TWEET_SELECTOR):
         try:
+            if not is_readable_post(article):
+                continue
             _, candidate_id, _ = identity_from_article(article)
             if candidate_id == tweet_id:
                 return article
@@ -336,39 +444,38 @@ def find_article_by_id(driver: Any, tweet_id: str) -> Any | None:
     return None
 
 
+def labeled_controls(article: Any, labels: Iterable[str]) -> list[Any]:
+    """Botones propios del artículo cuyo rótulo es uno de ``labels``."""
+
+    return article.parent.execute_script(LABELED_CONTROLS_JS, article, list(labels))
+
+
+def text_snapshot(article: Any) -> list[str]:
+    return [
+        element.get_attribute("textContent") or ""
+        for element in article.parent.execute_script(TEXT_ELEMENTS_JS, article)
+    ]
+
+
 def click_original_text_if_present(driver: Any, article: Any, tweet_id: str) -> Any:
-    from selenium.common.exceptions import NoSuchElementException, TimeoutException
-    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
     from selenium.webdriver.support.ui import WebDriverWait
 
-    try:
-        control = article.find_element(
-            By.XPATH,
-            './/span[contains(normalize-space(), "Ver original") or '
-            'contains(normalize-space(), "Show original") or '
-            'contains(normalize-space(), "Ver texto original")]',
-        )
-    except NoSuchElementException:
+    controls = labeled_controls(article, SHOW_ORIGINAL_LABELS)
+    if not controls:
         return article
 
-    before = [
-        element.get_attribute("textContent") or ""
-        for element in article.find_elements(By.CSS_SELECTOR, 'div[data-testid="tweetText"]')
-    ]
-    driver.execute_script("arguments[0].click();", control)
+    before = text_snapshot(article)
+    driver.execute_script("arguments[0].click();", controls[0])
 
     def text_changed(current_driver: Any) -> bool:
         current_article = find_article_by_id(current_driver, tweet_id)
         if current_article is None:
             return False
-        after = [
-            element.get_attribute("textContent") or ""
-            for element in current_article.find_elements(
-                By.CSS_SELECTOR,
-                'div[data-testid="tweetText"]',
-            )
-        ]
-        return after != before
+        try:
+            return text_snapshot(current_article) != before
+        except StaleElementReferenceException:
+            return False
 
     try:
         WebDriverWait(driver, 3).until(text_changed)
@@ -382,79 +489,67 @@ def expand_long_text(driver: Any, article: Any) -> None:
     """Pulsa "Mostrar más" para que el artículo muestre la publicación completa.
 
     X recorta en la cronología las publicaciones largas y deja el resto fuera del
-    DOM, así que sin este clic el texto se guarda truncado con puntos suspensivos.
-    No debe confundirse con "Mostrar esta cadena", que abre el hilo.
+    DOM, así que sin este clic el texto se guarda truncado. El botón se busca por
+    su rótulo y sólo entre los propios del artículo, para no confundirlo con
+    "Mostrar esta cadena" ni abrir el texto de una cita.
     """
 
-    from selenium.common.exceptions import WebDriverException
-    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import TimeoutException, WebDriverException
+    from selenium.webdriver.support.ui import WebDriverWait
 
     try:
-        controls = article.find_elements(
-            By.CSS_SELECTOR, '[data-testid="tweet-text-show-more-link"]'
-        )
+        controls = labeled_controls(article, SHOW_MORE_LABELS)
         if not controls:
-            controls = article.find_elements(
-                By.XPATH,
-                './/button[normalize-space()="Mostrar más" or normalize-space()="Show more"]'
-                ' | .//span[normalize-space()="Mostrar más" or normalize-space()="Show more"]',
-            )
+            return
         for control in controls:
             driver.execute_script("arguments[0].click();", control)
+        WebDriverWait(driver, 2, poll_frequency=0.1).until(
+            lambda _: not labeled_controls(article, SHOW_MORE_LABELS)
+        )
+    except TimeoutException:
+        logging.debug("El botón de texto largo no desapareció tras el clic.")
     except WebDriverException:
         logging.debug("No se pudo expandir el texto largo.", exc_info=True)
 
 
 def extract_text(article: Any, driver: Any) -> str:
-    from selenium.webdriver.common.by import By
-
     expand_long_text(driver, article)
 
-    elements = article.find_elements(By.CSS_SELECTOR, 'div[data-testid="tweetText"]')
-    for element in elements:
-        text = driver.execute_script("return arguments[0].innerText || arguments[0].textContent;", element)
+    for element in driver.execute_script(TEXT_ELEMENTS_JS, article):
+        text = driver.execute_script(READ_TEXT_JS, element, list(SHOW_MORE_LABELS))
         if text and text.strip():
             return text.strip()
-
-    spans = article.find_elements(
-        By.XPATH,
-        '(.//div[@data-testid="tweetText"])[1]//span',
-    )
-    return " ".join(span.text.strip() for span in spans if span.text.strip()).strip()
+    return ""
 
 
 def extract_real_name(article: Any, username: str) -> str:
-    from selenium.common.exceptions import NoSuchElementException
-    from selenium.webdriver.common.by import By
-
-    try:
-        container = article.find_element(By.CSS_SELECTOR, 'div[data-testid="User-Name"]')
-    except NoSuchElementException:
-        return "desconocido"
-
-    for span in container.find_elements(By.XPATH, './/span[normalize-space()]'):
-        text = span.text.strip()
-        if text and not text.startswith("@") and text.casefold() != username.casefold():
-            return text
-    return "desconocido"
+    name = article.parent.execute_script(REAL_NAME_JS, article, username)
+    return (name or "").strip() or "desconocido"
 
 
 def extract_favorites(article: Any) -> tuple[str, int | None]:
-    from selenium.common.exceptions import NoSuchElementException
-    from selenium.webdriver.common.by import By
-
-    try:
-        button = article.find_element(
-            By.CSS_SELECTOR,
-            'button[data-testid="like"], button[data-testid="unlike"]',
-        )
-    except NoSuchElementException:
+    buttons = own_elements(article, LIKE_BUTTON_SELECTOR)
+    if not buttons:
         return "", None
 
-    raw = button.text.strip()
-    if not raw:
-        raw = (button.get_attribute("aria-label") or "").strip()
+    label = (buttons[0].get_attribute("aria-label") or "").strip()
+    raw = buttons[0].text.strip() or label
+    # La etiqueta de accesibilidad trae el número exacto ("1959 Me gustan");
+    # lo visible viene abreviado ("1 mil").
+    exact = LIKE_LABEL_RE.match(label)
+    if exact:
+        return raw, int(re.sub(r"\D", "", exact.group(1)))
     return raw, parse_compact_number(raw)
+
+
+def extract_published_at(article: Any, tweet_id: str) -> str:
+    """Fecha ISO en UTC: la del elemento <time> si X lo sirve, si no la del id."""
+
+    for time_element in own_elements(article, "time"):
+        published_at = (time_element.get_attribute("datetime") or "").strip()
+        if published_at:
+            return published_at
+    return snowflake_to_iso(tweet_id)
 
 
 def extract_tweet_record(
@@ -464,17 +559,12 @@ def extract_tweet_record(
     constraints: QueryConstraints,
     match_terms: tuple[str, ...] = (),
 ) -> TweetRecord | None:
-    from selenium.webdriver.common.by import By
-
     username, tweet_id, canonical_url = identity_from_article(article)
     if constraints.accounts and username.casefold() not in constraints.accounts:
         logging.debug("Se omite %s: cuenta fuera de la consulta.", canonical_url)
         return None
 
-    time_element = article.find_element(By.TAG_NAME, "time")
-    published_at = (time_element.get_attribute("datetime") or "").strip()
-    if not published_at:
-        raise ValueError(f"La publicación {tweet_id} no contiene fecha.")
+    published_at = extract_published_at(article, tweet_id)
     if not timestamp_matches(published_at, constraints):
         logging.debug("Se omite %s: fecha fuera del intervalo.", canonical_url)
         return None
@@ -508,7 +598,12 @@ def page_state(driver: Any) -> str | bool:
     from selenium.webdriver.common.by import By
 
     current_url = driver.current_url.casefold()
-    if "/i/flow/login" in current_url or driver.find_elements(By.CSS_SELECTOR, 'input[autocomplete="username"]'):
+    login_markers = ("/i/flow/login", "/i/jf/onboarding", "redirect_after_login", "mode=login")
+    if (
+        any(marker in current_url for marker in login_markers)
+        or driver.find_elements(By.CSS_SELECTOR, 'input[autocomplete="username"]')
+        or driver.get_cookie("auth_token") is None
+    ):
         return "login"
     if driver.find_elements(By.CSS_SELECTOR, TWEET_SELECTOR):
         return "results"
@@ -720,6 +815,8 @@ def scrape(
 
         for article in articles:
             try:
+                if not is_readable_post(article):
+                    continue
                 _, tweet_id, _ = identity_from_article(article)
             except (ValueError, StaleElementReferenceException):
                 failures["identity"] += 1

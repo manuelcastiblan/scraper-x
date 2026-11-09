@@ -27,7 +27,10 @@ ejemplo.
   vuelve a pedir sólo el tramo que falta.
 - Expande las publicaciones largas ("Mostrar más") y el texto original cuando X
   muestra una traducción.
-- Guarda favoritos en formato original (`2.1K`) y numérico (`2100`).
+- Guarda favoritos como se ven (`2 mil`) y como número exacto (`2647`), que X
+  deja en la etiqueta de accesibilidad del botón.
+- Toma la fecha del **identificador** de la publicación, que lleva dentro el
+  instante en que se creó: no depende de cómo X dibuje la fecha.
 - Deduplica por identificador de publicación, no por texto ni por URL.
 - En las búsquedas por términos, **verifica en local** que el texto contenga
   alguno de los términos: X devuelve publicaciones de contexto que no los
@@ -35,9 +38,18 @@ ejemplo.
 
 **Qué NO hace**
 
-- No descarga retuits sin comentario: la búsqueda de X no los devuelve.
+- No guarda reposts sin comentario. Desde 2026 la búsqueda `from:` sí los
+  muestra, pero su autor es otra cuenta y la descarga por cuentas se queda sólo
+  con lo que escribió cada una.
+- De una cita guarda el texto de quien cita, no el de la publicación citada: X
+  la dibuja recortada, sin forma de abrirla y sin contadores.
+- No guarda publicaciones sin texto (sólo imagen o vídeo).
 - No descarga publicaciones borradas, de cuentas privadas o suspendidas.
-- No usa la API de X. Depende de la interfaz web, que cambia sin avisar.
+- No usa la API de X. Depende de la interfaz web, que cambia sin avisar: en 2026
+  X rehízo su HTML y quitó las marcas (`data-testid`, `<time>`) en que se apoyan
+  casi todos los scrapers. Si una descarga con sesión activa empieza a dar cero
+  en todo, lo primero que hay que revisar son los selectores al inicio de
+  `scraper_x.py`.
 - No paraleliza: una sola ventana de Firefox, porque X limita por sesión.
 
 ---
@@ -248,7 +260,7 @@ python descargar_cuentas.py \
 | `--window-months 3` | Meses por lote. Trimestres rinden mejor que meses; los lotes saturados se subdividen solos. |
 | `--retries 12 --retry-backoff 600` | Reintentos y espera en segundos cuando X bloquea. 10–15 minutos funciona; esperas cortas sólo gastan intentos. |
 | `--account ID` / `--corporation texto` | Limitar a una persona o a un subconjunto. |
-| `--start` / `--end` | Acotar el periodo (final exclusivo). |
+| `--start` / `--end` | Acotar el periodo (final exclusivo). Con hora y huso: `2026-06-01T00:00:00-05:00`; la fecha sola no se acepta. |
 | `--headed` | Ver el navegador. |
 | `--force --refresh` | Volver a leer lotes ya terminados **una sola vez**, para corregir datos viejos. |
 
@@ -361,7 +373,7 @@ CSV con separador `;` y codificación UTF-8 con BOM (Excel lo abre directo):
 | `date` | Marca de tiempo ISO en UTC |
 | `text` | Texto completo |
 | `matched_terms` | Términos encontrados (búsquedas temáticas) |
-| `favorites_raw`, `favorites` | `"2.1K"` y `2100` |
+| `favorites_raw`, `favorites` | `"2 mil"` (como se ve) y `2647` (exacto) |
 | `tweet_id`, `url` | Identificadores |
 | `scraped_at`, `source_query` | Trazabilidad: cuándo y con qué consulta |
 
@@ -391,16 +403,20 @@ cero, celda por celda, para enseñar de qué está hecho. Son 24 pasos cortos.
 | 3 | 15–17 | Recorrer la página con scroll y guardar en CSV |
 | 4 | 18–24 | Acotar por fechas, varias cuentas, limpiar, revisar y analizar |
 
-Tres pasos enseñan trampas que hacen que un corpus parezca correcto sin serlo,
-y las tres salieron de ejecutar el cuaderno y mirar el resultado:
+Cinco pasos enseñan trampas que hacen que un corpus parezca correcto sin serlo,
+y todas salieron de ejecutar el cuaderno y mirar el resultado:
 
-- **Paso 10-11**: X recorta los textos largos a 280 caracteres sin dejar marca.
-  El 10 lo hace ver midiendo lo que hay en pantalla; el 11 lo resuelve.
+- **Paso 5**: un perfil sin sesión no da error. X lo manda a su página de
+  bienvenida y la descarga sale vacía; hay que comprobar la cookie de sesión.
+- **Paso 7-8**: X cambia su HTML sin avisar, y anida publicaciones: un repost
+  envuelve a la original y una cita va dentro de quien cita. Sin distinguirlas
+  se lee el texto de una como si fuera de otra.
+- **Paso 10-11**: X recorta los textos largos a unos 280 caracteres. El 10 lo
+  hace ver midiendo lo que hay en pantalla; el 11 lo resuelve.
 - **Paso 12**: X traduce las publicaciones. La primera versión de este cuaderno
   guardó 96 de 115 traducidas al inglés sin advertirlo.
-- **Paso 20**: cuando una publicación es respuesta, X dibuja también la
-  original, y el scraper se la trae. En la prueba, 43 de 115 eran de otra
-  cuenta.
+- **Paso 20**: `from:cuenta` devuelve también lo que esa cuenta reposteó, que es
+  de otros autores. En la primera prueba, 43 de 115 eran de otra cuenta.
 
 El paso 23 cierra diciendo qué le falta a ese scraper mínimo —reanudar, detectar
 paginación cortada, aguantar los bloqueos— y remite a los programas de este
@@ -422,9 +438,13 @@ jupyter lab ejemplo.ipynb     # o: jupyter notebook ejemplo.ipynb
 python -m unittest test_scraper_x test_descargar_cuentas
 ```
 
-28 pruebas que no abren navegador: construcción de consultas, conversión de
-medianoche local a UTC, deduplicación, detección de truncamiento, reanudación y
-protección del texto recuperado.
+31 pruebas que no abren navegador: construcción de consultas, conversión de
+medianoche local a UTC, fecha a partir del identificador, deduplicación,
+detección de truncamiento, reanudación y protección del texto recuperado.
+
+Ninguna prueba toca la página de X, así que **no avisan si X cambia su HTML**.
+Para eso, una descarga corta de una semana de una cuenta activa es la prueba
+real.
 
 ---
 
@@ -437,8 +457,8 @@ protección del texto recuperado.
   texto completo. Eso respeta los borrados posteriores.
 - Hay datos personales: aunque sean figuras públicas, revisa las reglas de tu
   comité de ética antes de redistribuir.
-- Documenta las limitaciones: sin retuits, sin publicaciones borradas, y huecos
-  donde X no entregó resultados.
+- Documenta las limitaciones: sin reposts, sin publicaciones de sólo imagen o
+  vídeo, sin publicaciones borradas, y huecos donde X no entregó resultados.
 
 ---
 
