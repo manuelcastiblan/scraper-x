@@ -357,11 +357,11 @@ aparte, para poder seguir navegando mientras la descarga corre.
 5. **Cierra Firefox por completo.** Mientras está abierto, bloquea el perfil y
    el scraper no puede usarlo.
 
-6. Declara esa ruta. En el cuaderno, primera celda, cambiando las barras `\` por
-   `/`:
+6. Declara esa ruta. En el cuaderno, en la celda del **paso 3**, cambiando las
+   barras `\` por `/`:
 
    ```python
-   PERFIL_FIREFOX = "C:/Users/TU_USUARIO/AppData/Roaming/Mozilla/Firefox/Profiles/a1b2c3d4.scraper"
+   PERFIL = "C:/Users/TU_USUARIO/AppData/Roaming/Mozilla/Firefox/Profiles/a1b2c3d4.scraper"
    ```
 
    Y si vas a correr los scripts desde la terminal, en Git Bash:
@@ -373,11 +373,15 @@ aparte, para poder seguir navegando mientras la descarga corre.
    Esa variable se borra al cerrar la ventana. Para no repetirla cada vez,
    agrégala al final del archivo `~/.bashrc`, que Git Bash lee al abrirse.
 
-> **Por qué declararlo y no dejar que lo adivine.** Si no dices cuál es, el
-> scraper toma el perfil marcado como predeterminado, que normalmente es el de
-> uso diario y puede no tener sesión en X. El fallo es silencioso: X manda el
-> navegador al formulario de acceso y la descarga termina **vacía, sin ningún
-> mensaje de error**.
+> **Por qué declararlo y no dejar que lo adivine.** Si no dices cuál es, los
+> programas buscan entre tus perfiles uno que tenga sesión de X y usan ese; si
+> ninguno la tiene, toman el que Firefox abre por omisión. Funciona en el caso
+> simple, pero si tienes sesión en dos perfiles (dos cuentas de X) eligen el de
+> cookies más recientes, que puede no ser el que querías. Y la variable
+> `X_FIREFOX_PROFILE` **sólo existe en la ventana de terminal donde la
+> escribiste**: en una ventana nueva, o en un programa abierto desde el Dock o
+> el menú Inicio, no está. Si un día funciona y al siguiente no, casi siempre es
+> eso. Compruébalo con `echo "$X_FIREFOX_PROFILE"`.
 
 **Comprobación.** Ejecuta las tres primeras celdas de código del cuaderno. La tercera abre Firefox
 sin ventana y debe imprimir `estado de la página: results` y `Sesión lista.` Si

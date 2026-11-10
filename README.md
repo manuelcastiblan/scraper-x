@@ -154,8 +154,11 @@ manual, se hace una vez y dura semanas.
    $env:X_FIREFOX_PROFILE = "$env:APPDATA\Mozilla\Firefox\Profiles\xxxxxxxx.scraper"
    ```
 
-   Sin esa variable, el scraper toma el perfil predeterminado de `profiles.ini`,
-   que suele ser el de uso diario.
+   Sin esa variable, el scraper busca entre los perfiles uno que tenga sesión
+   de X; si ninguno la tiene, toma el que Firefox abre por omisión. La variable
+   sólo existe en la terminal donde se escribió: en una ventana nueva hay que
+   declararla otra vez, o dejarla en `~/.zshrc` (macOS), `~/.bashrc` (Linux y
+   Git Bash) o con `setx` (Windows).
 
    Hay tres maneras de indicarlo, de mayor a menor prioridad: la opción
    `--profile RUTA` de cada script, la variable `X_FIREFOX_PROFILE`, y la
@@ -438,8 +441,9 @@ jupyter lab ejemplo.ipynb     # o: jupyter notebook ejemplo.ipynb
 python -m unittest test_scraper_x test_descargar_cuentas
 ```
 
-31 pruebas que no abren navegador: construcción de consultas, conversión de
-medianoche local a UTC, fecha a partir del identificador, deduplicación,
+34 pruebas que no abren navegador: construcción de consultas, conversión de
+medianoche local a UTC, fecha a partir del identificador, elección del perfil
+de Firefox, deduplicación,
 detección de truncamiento, reanudación y protección del texto recuperado.
 
 Ninguna prueba toca la página de X, así que **no avisan si X cambia su HTML**.
