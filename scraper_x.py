@@ -17,6 +17,7 @@ import logging
 import os
 import random
 import re
+import sqlite3
 import sys
 import tempfile
 import time
@@ -25,7 +26,7 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, time as datetime_time, timezone
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -292,27 +293,118 @@ def discover_firefox_profile(explicit: Path | None = None) -> Path | None:
     ini_path = next((candidate for candidate in candidates if candidate.is_file()), None)
     if not ini_path:
         return None
+    return choose_profile_from_ini(ini_path)
+
+
+def profile_has_x_session(profile: Path, now: float | None = None) -> bool:
+    """Indica si el perfil guarda una sesión vigente de X (cookie ``auth_token``).
+
+    Abre ``cookies.sqlite`` en modo inmutable: no escribe nada en el perfil y
+    funciona aunque Firefox lo tenga abierto. A cambio no ve lo que Firefox aún
+    no haya volcado al archivo, así que una sesión iniciada hace segundos puede
+    no aparecer hasta cerrar el navegador.
+    """
+
+    cookies = profile / "cookies.sqlite"
+    if not cookies.is_file():
+        return False
+    now = time.time() if now is None else now
+    uri = f"file:{quote(cookies.resolve().as_posix())}?mode=ro&immutable=1"
+    try:
+        connection = sqlite3.connect(uri, uri=True)
+        try:
+            rows = connection.execute(
+                "SELECT expiry FROM moz_cookies WHERE name = 'auth_token' AND ("
+                "host = 'x.com' OR host LIKE '%.x.com' "
+                "OR host = 'twitter.com' OR host LIKE '%.twitter.com')"
+            ).fetchall()
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return False
+
+    for (expiry,) in rows:
+        try:
+            expiry = float(expiry)
+        except (TypeError, ValueError):
+            continue
+        if expiry > 1e11:  # Firefox reciente guarda milisegundos
+            expiry /= 1000
+        if expiry > now:
+            return True
+    return False
+
+
+def choose_profile_from_ini(ini_path: Path) -> Path | None:
+    """Elige el perfil a usar cuando no se indicó ninguno.
+
+    El orden importa, porque un perfil equivocado no da error: X pide iniciar
+    sesión y la descarga sale vacía.
+
+    1. Un perfil con sesión de X. Si hay varios, el de cookies más recientes.
+    2. El que la instalación de Firefox usa de verdad (secciones ``[Install…]``).
+    3. El marcado ``Default=1``, que en instalaciones modernas suele ser un
+       perfil antiguo y vacío llamado ``default``, no el de uso diario.
+    4. El primero que exista.
+    """
 
     parser = configparser.ConfigParser()
     parser.read(ini_path, encoding="utf-8")
-    profile_sections = [section for section in parser.sections() if section.startswith("Profile")]
-    ordered_sections = sorted(
-        profile_sections,
-        key=lambda section: parser.getboolean(section, "Default", fallback=False),
-        reverse=True,
-    )
+    base = ini_path.parent
 
-    for section in ordered_sections:
-        configured_path = parser.get(section, "Path", fallback="").strip()
-        if not configured_path:
-            continue
-        path = Path(configured_path)
-        if parser.getboolean(section, "IsRelative", fallback=True):
-            path = ini_path.parent / path
+    def resolve(raw: str, relative: bool = True) -> Path | None:
+        raw = raw.strip()
+        if not raw:
+            return None
+        path = Path(raw)
+        if relative and not path.is_absolute():
+            path = base / path
         path = path.expanduser().resolve()
-        if path.is_dir():
-            return path
-    return None
+        return path if path.is_dir() else None
+
+    listed: list[Path] = []
+    legacy_default: Path | None = None
+    for section in parser.sections():
+        if not section.startswith("Profile"):
+            continue
+        path = resolve(
+            parser.get(section, "Path", fallback=""),
+            parser.getboolean(section, "IsRelative", fallback=True),
+        )
+        if path is None or path in listed:
+            continue
+        listed.append(path)
+        if legacy_default is None and parser.getboolean(section, "Default", fallback=False):
+            legacy_default = path
+
+    # Perfiles que existen en disco aunque profiles.ini no los nombre.
+    profiles_directory = base / "Profiles"
+    if profiles_directory.is_dir():
+        for path in sorted(profiles_directory.iterdir()):
+            path = path.resolve()
+            if path.is_dir() and path not in listed and (path / "cookies.sqlite").is_file():
+                listed.append(path)
+
+    with_session = [path for path in listed if profile_has_x_session(path)]
+    if with_session:
+        with_session.sort(key=lambda path: (path / "cookies.sqlite").stat().st_mtime, reverse=True)
+        if len(with_session) > 1:
+            logging.warning(
+                "Hay %d perfiles de Firefox con sesión de X; se usa %s. "
+                "Para elegir otro, usa --profile o X_FIREFOX_PROFILE.",
+                len(with_session),
+                with_session[0].name,
+            )
+        return with_session[0]
+
+    for section in parser.sections():
+        if section.startswith("Install"):
+            path = resolve(parser.get(section, "Default", fallback=""))
+            if path is not None:
+                return path
+    if legacy_default is not None:
+        return legacy_default
+    return listed[0] if listed else None
 
 
 def resolve_driver_path(explicit: Path | None = None) -> Path | None:
@@ -342,8 +434,9 @@ def create_driver(
         from selenium.webdriver.firefox.service import Service as FirefoxService
     except ModuleNotFoundError as exc:
         raise RuntimeError(
-            "Falta Selenium. Instálalo con: "
-            "python -m pip install -r requirements-scraper-x.txt"
+            f"Falta Selenium en este Python ({sys.executable}). Instálalo con: "
+            "python -m pip install -r requirements.txt, o ejecuta el programa "
+            "con el Python del entorno virtual donde ya está instalado."
         ) from exc
 
     options = Options()

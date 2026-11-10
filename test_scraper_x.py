@@ -1,4 +1,6 @@
+import sqlite3
 import tempfile
+import time
 import unittest
 from datetime import date
 from pathlib import Path
@@ -22,12 +24,14 @@ from scraper_x import (
     LIKE_LABEL_RE,
     TweetRecord,
     build_search_url,
+    choose_profile_from_ini,
     extract_status_identity,
     find_matching_terms,
     load_existing_records,
     main,
     parse_compact_number,
     parse_query_constraints,
+    profile_has_x_session,
     save_records_atomic,
     snowflake_to_iso,
     timestamp_matches,
@@ -243,6 +247,72 @@ class ScraperUtilitiesTest(unittest.TestCase):
         self.assertEqual(keep_longest_text(registro(corto), registro(largo)).text, largo)
         # Sin registro previo se conserva lo leído.
         self.assertEqual(keep_longest_text(None, registro(corto)).text, corto)
+
+
+class FirefoxProfileDiscoveryTest(unittest.TestCase):
+    """Sin perfil declarado, se elige el que tiene sesión de X."""
+
+    def crear(self, base: Path, nombre: str, expira: float | None = None) -> Path:
+        perfil = base / "Profiles" / nombre
+        perfil.mkdir(parents=True)
+        conexion = sqlite3.connect(perfil / "cookies.sqlite")
+        conexion.execute("CREATE TABLE moz_cookies (name TEXT, host TEXT, expiry INTEGER)")
+        if expira is not None:
+            conexion.execute(
+                "INSERT INTO moz_cookies VALUES ('auth_token', '.x.com', ?)", (expira,)
+            )
+        conexion.commit()
+        conexion.close()
+        return perfil.resolve()
+
+    def indice(self, base: Path, extra: str = "") -> Path:
+        ruta = base / "profiles.ini"
+        ruta.write_text(
+            "[Profile0]\nName=default\nIsRelative=1\nPath=Profiles/aaaa.default\nDefault=1\n\n"
+            "[Profile1]\nName=default-release\nIsRelative=1\nPath=Profiles/bbbb.default-release\n\n"
+            "[Profile2]\nName=scraper\nIsRelative=1\nPath=Profiles/cccc.scraper\n\n" + extra,
+            encoding="utf-8",
+        )
+        return ruta
+
+    def test_profile_with_x_session_wins_over_default_flag(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            # La ruta lleva un espacio, como "Application Support" en macOS.
+            base = Path(carpeta) / "Application Support" / "Firefox"
+            self.crear(base, "aaaa.default")
+            self.crear(base, "bbbb.default-release")
+            con_sesion = self.crear(base, "cccc.scraper", expira=time.time() + 3600)
+
+            self.assertTrue(profile_has_x_session(con_sesion))
+            self.assertEqual(choose_profile_from_ini(self.indice(base)), con_sesion)
+
+    def test_expired_session_does_not_count(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            base = Path(carpeta)
+            self.crear(base, "aaaa.default")
+            en_uso = self.crear(base, "bbbb.default-release")
+            vencido = self.crear(base, "cccc.scraper", expira=time.time() - 3600)
+            # Firefox reciente guarda el vencimiento en milisegundos.
+            en_ms = self.crear(base, "dddd.otro", expira=(time.time() + 3600) * 1000)
+
+            self.assertFalse(profile_has_x_session(vencido))
+            self.assertTrue(profile_has_x_session(en_ms))
+            self.assertFalse(profile_has_x_session(base / "no-existe"))
+            # dddd.otro no figura en profiles.ini, pero existe y tiene sesión.
+            self.assertEqual(choose_profile_from_ini(self.indice(base)), en_ms)
+            self.assertNotEqual(en_uso, en_ms)
+
+    def test_without_session_prefers_install_default_over_legacy_flag(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            base = Path(carpeta)
+            legado = self.crear(base, "aaaa.default")
+            en_uso = self.crear(base, "bbbb.default-release")
+            self.crear(base, "cccc.scraper")
+
+            instalacion = "[InstallABCDEF]\nDefault=Profiles/bbbb.default-release\nLocked=1\n"
+            self.assertEqual(choose_profile_from_ini(self.indice(base, instalacion)), en_uso)
+            # Sin sección [Install…] queda la marca antigua Default=1.
+            self.assertEqual(choose_profile_from_ini(self.indice(base)), legado)
 
 
 if __name__ == "__main__":
