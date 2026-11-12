@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from scraper_x import (
+    DEFAULT_TIMEOUT,
     CSV_FIELDS,
     SCRIPT_DIR,
     TweetRecord,
@@ -460,7 +461,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--max-scrolls", type=int, default=120)
     parser.add_argument("--no-new-limit", type=int, default=3)
-    parser.add_argument("--timeout", type=float, default=25.0)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help="Segundos de espera por página (por omisión, %(default)g).",
+    )
     parser.add_argument(
         "--retries",
         type=int,

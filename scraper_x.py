@@ -35,6 +35,9 @@ DEFAULT_QUERY = (
     "since:2026-06-01 until:2026-06-22"
 )
 DEFAULT_OUTPUT = SCRIPT_DIR / "busqueda_simple.csv"
+# Segundos que se espera a que X cargue una página. Con conexiones lentas, o la
+# primera vez que Firefox arranca con un perfil, 25 s no alcanzaban.
+DEFAULT_TIMEOUT = 90.0
 LOCAL_GECKODRIVER_NAMES = ("geckodriver", "geckodriver.exe")
 
 # X sirve desde 2026 una interfaz sin los data-testid que tenía antes; los
@@ -1028,7 +1031,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-scrolls", type=positive_int, default=100)
     parser.add_argument("--no-new-limit", type=positive_int, default=5)
     parser.add_argument("--checkpoint-every", type=positive_int, default=5)
-    parser.add_argument("--timeout", type=nonnegative_float, default=25.0)
+    parser.add_argument(
+        "--timeout",
+        type=nonnegative_float,
+        default=DEFAULT_TIMEOUT,
+        help="Segundos de espera por página (por omisión, %(default)g).",
+    )
     parser.add_argument("--min-pause", type=nonnegative_float, default=1.5)
     parser.add_argument("--max-pause", type=nonnegative_float, default=3.0)
     parser.add_argument("--headed", action="store_true", help="Muestra la ventana de Firefox.")

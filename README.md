@@ -265,6 +265,7 @@ python descargar_cuentas.py \
 | `--account ID` / `--corporation texto` | Limitar a una persona o a un subconjunto. |
 | `--start` / `--end` | Acotar el periodo (final exclusivo). Con hora y huso: `2026-06-01T00:00:00-05:00`; la fecha sola no se acepta. |
 | `--headed` | Ver el navegador. |
+| `--timeout 90` | Segundos que se espera a que X cargue cada página (90 por omisión). Si aparece `Navigation timed out`, súbelo: la conexión o el primer arranque de Firefox están tardando más. |
 | `--force --refresh` | Volver a leer lotes ya terminados **una sola vez**, para corregir datos viejos. |
 
 Para revisar el censo como hoja de cálculo:

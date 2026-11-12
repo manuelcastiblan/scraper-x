@@ -28,6 +28,7 @@ from typing import Any
 
 from descargar_cuentas import DEFAULT_PARTS, DEFAULT_ROSTER, load_roster
 from scraper_x import (
+    DEFAULT_TIMEOUT,
     create_driver,
     discover_firefox_profile,
     extract_text,
@@ -79,7 +80,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="Carpeta de lotes de la descarga a revisar.")
     parser.add_argument("--state", type=Path, default=Path("reparacion_textos_estado.json"))
     parser.add_argument("--min-length", type=int, default=200)
-    parser.add_argument("--timeout", type=float, default=25.0)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help="Segundos de espera por página (por omisión, %(default)g).",
+    )
     parser.add_argument("--pause", type=float, default=1.5)
     parser.add_argument("--retry-backoff", type=float, default=600.0)
     parser.add_argument("--retries", type=int, default=12)
