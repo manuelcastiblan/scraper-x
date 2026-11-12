@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 from scraper_x import (
+    DEFAULT_TIMEOUT,
     SCRIPT_DIR,
     TweetRecord,
     create_driver,
@@ -150,7 +151,12 @@ def parse_args() -> argparse.Namespace:
         default=3,
         help="Días consecutivos por búsqueda; reduce los límites de frecuencia de X.",
     )
-    parser.add_argument("--timeout", type=float, default=25.0)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help="Segundos de espera por página (por omisión, %(default)g).",
+    )
     parser.add_argument("--retries", type=int, default=4)
     parser.add_argument("--retry-backoff", type=float, default=45.0)
     parser.add_argument("--headed", action="store_true")
