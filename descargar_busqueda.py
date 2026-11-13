@@ -8,9 +8,15 @@ que el texto contenga literalmente alguno de los términos: X devuelve
 publicaciones de contexto que no los mencionan, y sin esa comprobación el corpus
 queda contaminado.
 
-Ejemplo:
+Con --query se da la expresión de X completa. Si no se acompaña de --term, esa
+comprobación local no se hace y se guarda todo lo que X devuelva.
 
-    python descargar_busqueda.py --term "Prioridad Nacional" --term #PrioridadNacional \
+Ejemplos:
+
+    python descargar_busqueda.py --term "Prioridad Nacional" --term "#PrioridadNacional" \
+        --start 2026-03-01 --end 2026-08-01 --output prioridad_nacional.csv
+
+    python descargar_busqueda.py --query '"Prioridad Nacional" lang:es -filter:replies' \
         --start 2026-03-01 --end 2026-08-01 --output prioridad_nacional.csv
 """
 
@@ -90,7 +96,8 @@ def read_matching_records(path: Path, terms: Sequence[str], expression: str) -> 
     records: dict[str, TweetRecord] = {}
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         for row in csv.DictReader(handle, delimiter=";"):
-            if not find_matching_terms(row.get("text", ""), terms):
+            # Sin términos (búsqueda sólo con --query) no hay filtro local.
+            if terms and not find_matching_terms(row.get("text", ""), terms):
                 continue
             source_query = row.get("source_query", "") or expression
             record = record_from_legacy_row(row, source_query, terms)
@@ -113,20 +120,23 @@ def merge_records(
     return merged
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--term",
         action="append",
         default=[],
-        required=True,
-        help="Término o frase a buscar. Repetible: --term \"Prioridad Nacional\" --term #Hashtag",
+        help="Término o frase a buscar. Repetible: --term \"Prioridad Nacional\" "
+        "--term \"#Hashtag\" (el hashtag entre comillas: sin ellas la terminal "
+        "toma el # como comentario). Obligatorio salvo que uses --query.",
     )
     parser.add_argument(
         "--query",
         help="Expresión de búsqueda completa de X, por si necesitas operadores "
-        "(lang:, from:, -filter:replies). Reemplaza la que se arma con --term, "
-        "pero el filtro local sigue exigiendo que el texto contenga algún --term.",
+        "(lang:, from:, -filter:replies). Reemplaza la que se arma con --term. "
+        "Sin fechas: since: y until: los añade el programa. Si además das "
+        "--term, sólo se guardan los textos que contengan alguno; sin --term "
+        "se guarda todo lo que X devuelva.",
     )
     parser.add_argument("--start", type=date.fromisoformat, required=True, help="Primer día (AAAA-MM-DD).")
     parser.add_argument(
@@ -161,7 +171,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--retry-backoff", type=float, default=45.0)
     parser.add_argument("--headed", action="store_true")
     parser.add_argument("--force", action="store_true", help="Repite también los días ya completados.")
-    return parser.parse_args()
+    args = parser.parse_args(argv)
+    args.term = [term.strip() for term in args.term if term.strip()]
+    args.query = (args.query or "").strip() or None
+    if not args.term and not args.query:
+        parser.error("Indica al menos un --term, o una expresión completa con --query.")
+    return args
 
 
 def main() -> int:
@@ -201,6 +216,13 @@ def main() -> int:
         logging.info("Checkpoint inicial respaldado en %s", backup)
 
     logging.info("Búsqueda: %s", expression)
+    if terms:
+        logging.info("Filtro local: el texto debe contener alguno de %s", list(terms))
+    else:
+        logging.warning(
+            "Sin --term no hay filtro local: se guarda todo lo que X devuelva para "
+            "esa expresión, incluidas publicaciones de contexto que no la mencionan."
+        )
     seed = read_matching_records(output, terms, expression)
     logging.info("Coincidencias exactas recuperadas del primer checkpoint: %d", len(seed))
 

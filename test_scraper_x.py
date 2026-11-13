@@ -11,7 +11,9 @@ from urllib.parse import parse_qs, urlsplit
 from descargar_busqueda import (
     daily_query,
     earliest_record_day,
+    parse_args as parse_search_args,
     range_query,
+    read_matching_records,
     search_expression,
 )
 
@@ -56,6 +58,39 @@ class ScraperUtilitiesTest(unittest.TestCase):
         self.assertEqual(search_expression(("#Solo",)), "#Solo")
         with self.assertRaises(ValueError):
             search_expression(())
+
+    def test_query_alone_does_not_require_terms(self):
+        base = ["--start", "2026-03-01", "--end", "2026-03-04"]
+
+        solo_query = parse_search_args(["--query", "  lang:es min_faves:100  ", *base])
+        self.assertEqual(solo_query.term, [])
+        self.assertEqual(solo_query.query, "lang:es min_faves:100")
+
+        ambos = parse_search_args(["--query", "lang:es", "--term", "#Hashtag", *base])
+        self.assertEqual(ambos.term, ["#Hashtag"])
+
+        # Sin --term ni --query no hay nada que buscar.
+        with patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_search_args(base)
+        with patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_search_args(["--term", "  ", *base])
+
+    def test_read_matching_records_without_terms_keeps_everything(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            ruta = Path(carpeta) / "parte.csv"
+            ruta.write_text(
+                "text;url;date;source_query\n"
+                "Prioridad Nacional ya;https://x.com/a/status/1;2026-03-01T10:00:00.000Z;q\n"
+                "otra cosa;https://x.com/b/status/2;2026-03-01T11:00:00.000Z;q\n",
+                encoding="utf-8-sig",
+            )
+
+            con_filtro = read_matching_records(ruta, ("Prioridad Nacional",), "q")
+            sin_filtro = read_matching_records(ruta, (), "q")
+
+        self.assertEqual(set(con_filtro), {"1"})
+        self.assertEqual(set(sin_filtro), {"1", "2"})
+        self.assertEqual(sin_filtro["2"].matched_terms, "")
 
     def test_range_query_uses_exclusive_end_date(self):
         query = range_query(date(2026, 3, 25), date(2026, 3, 28), SEARCH_EXPRESSION)

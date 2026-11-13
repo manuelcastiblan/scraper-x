@@ -201,9 +201,26 @@ python descargar_busqueda.py \
 - `--end` es **exclusivo**: `2026-08-01` incluye todo el 31 de julio.
 - `--batch-days 3` agrupa días por búsqueda y reduce los bloqueos de X. Si un
   lote resulta demasiado voluminoso, el scraper baja a días sueltos solo.
-- `--query` acepta una expresión completa de X si necesitas operadores
-  (`lang:es`, `-filter:replies`, `from:`). El filtro local sigue exigiendo que el
-  texto contenga alguno de los `--term`.
+- Los hashtags van **entre comillas** (`"#PrioridadNacional"`): sin ellas la
+  terminal toma el `#` como inicio de comentario y descarta el resto de la línea.
+
+Si necesitas operadores de X (`lang:es`, `-filter:replies`, `from:`,
+`min_faves:`), da la expresión completa con `--query`, entre comillas simples:
+
+```bash
+python descargar_busqueda.py \
+  --query '("Prioridad Nacional" OR #PrioridadNacional) lang:es -filter:replies' \
+  --start 2026-03-01 --end 2026-08-01 \
+  --output prioridad_nacional.csv
+```
+
+- No pongas fechas dentro de `--query`: `since:` y `until:` los añade el programa
+  a cada lote, a partir de `--start` y `--end`.
+- Con `--query`, `--term` es **opcional**. Si das alguno, sólo se guardan las
+  publicaciones cuyo texto lo contenga literalmente (distingue tildes, no
+  mayúsculas). Si no das ninguno, se guarda todo lo que X devuelva para esa
+  expresión, incluidas las publicaciones de contexto que no la mencionan: revisa
+  el resultado antes de analizarlo.
 
 ---
 
@@ -442,7 +459,7 @@ jupyter lab ejemplo.ipynb     # o: jupyter notebook ejemplo.ipynb
 python -m unittest test_scraper_x test_descargar_cuentas
 ```
 
-34 pruebas que no abren navegador: construcción de consultas, conversión de
+36 pruebas que no abren navegador: construcción de consultas, conversión de
 medianoche local a UTC, fecha a partir del identificador, elección del perfil
 de Firefox, deduplicación,
 detección de truncamiento, reanudación y protección del texto recuperado.
